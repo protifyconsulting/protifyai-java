@@ -15,11 +15,18 @@
  */
 
 plugins {
-    id("java")
+    id("java-library")
+    id("maven-publish")
+    id("signing")
 }
 
-group = "com.protify"
-version = "1.0-SNAPSHOT"
+group = "ai.protify"
+version = "0.1.0"
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
 repositories {
     mavenCentral()
@@ -32,11 +39,6 @@ java {
 }
 
 dependencies {
-
-    implementation("org.slf4j:jul-to-slf4j:2.0.12")
-    implementation("org.slf4j:slf4j-jdk-platform-logging:2.0.12")
-    runtimeOnly("ch.qos.logback:logback-classic:1.4.14")
-
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -44,4 +46,57 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+configure<PublishingExtension> {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            pom {
+                name.set("Protify AI")
+                description.set("Protify AI Zero Dependency Java SDK")
+                url.set("https://github.com/protifyai/protifyai-java")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("protify")
+                        name.set("Protify Consulting LLC")
+                        email.set("jkuryla@protify.ai")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/protifyconsulting/protifyai-java.git")
+                    developerConnection.set("scm:git:ssh://github.com/protifyconsulting/protifyai-java.git")
+                    url.set("https://github.com/protifyconsulting/protifyai-java")
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+
+            credentials {
+                username = findProperty("ossrhUsername") as String? ?: System.getenv("OSSRH_USERNAME")
+                password = findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASSWORD")
+            }
+        }
+    }
+}
+
+configure<SigningExtension> {
+    sign(the<PublishingExtension>().publications["mavenJava"])
 }
