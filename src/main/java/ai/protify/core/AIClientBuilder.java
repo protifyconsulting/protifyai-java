@@ -124,6 +124,54 @@ public class AIClientBuilder {
         return this;
     }
 
+    public AIClientBuilder region(String region) {
+        LOGGER.debug("Region set to {}", region);
+        clientProperties.put(AIConfigProperty.REGION, region);
+        return this;
+    }
+
+    public AIClientBuilder projectId(String projectId) {
+        LOGGER.debug("Project ID set");
+        clientProperties.put(AIConfigProperty.PROJECT_ID, projectId);
+        return this;
+    }
+
+    public AIClientBuilder resourceName(String resourceName) {
+        LOGGER.debug("Resource name set to {}", resourceName);
+        clientProperties.put(AIConfigProperty.RESOURCE_NAME, resourceName);
+        return this;
+    }
+
+    public AIClientBuilder deploymentName(String deploymentName) {
+        LOGGER.debug("Deployment name set to {}", deploymentName);
+        clientProperties.put(AIConfigProperty.DEPLOYMENT_NAME, deploymentName);
+        return this;
+    }
+
+    public AIClientBuilder apiVersion(String apiVersion) {
+        LOGGER.debug("API version set to {}", apiVersion);
+        clientProperties.put(AIConfigProperty.API_VERSION, apiVersion);
+        return this;
+    }
+
+    public AIClientBuilder awsAccessKeyId(String accessKeyId) {
+        LOGGER.debug("AWS access key ID set");
+        clientProperties.put(AIConfigProperty.AWS_ACCESS_KEY_ID, accessKeyId);
+        return this;
+    }
+
+    public AIClientBuilder awsSecretAccessKey(String secretAccessKey) {
+        LOGGER.debug("AWS secret access key set");
+        clientProperties.put(AIConfigProperty.AWS_SECRET_ACCESS_KEY, secretAccessKey);
+        return this;
+    }
+
+    public AIClientBuilder awsSessionToken(String sessionToken) {
+        LOGGER.debug("AWS session token set");
+        clientProperties.put(AIConfigProperty.AWS_SESSION_TOKEN, sessionToken);
+        return this;
+    }
+
     public AIClient build() {
         LOGGER.debug("Building client");
 

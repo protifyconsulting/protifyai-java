@@ -17,7 +17,17 @@
 package ai.protify.core.internal.provider;
 
 import ai.protify.core.internal.provider.anthropic.AnthropicClient;
+import ai.protify.core.internal.provider.azure.AzureOpenAIClient;
+import ai.protify.core.internal.provider.bedrock.BedrockClient;
+import ai.protify.core.internal.provider.deepseek.DeepSeekClient;
+import ai.protify.core.internal.provider.fireworks.FireworksClient;
+import ai.protify.core.internal.provider.gemini.GeminiClient;
+import ai.protify.core.internal.provider.groq.GroqClient;
+import ai.protify.core.internal.provider.mistral.MistralClient;
 import ai.protify.core.internal.provider.openai.OpenAIClient;
+import ai.protify.core.internal.provider.together.TogetherClient;
+import ai.protify.core.internal.provider.vertexai.VertexAIClient;
+import ai.protify.core.internal.provider.xai.XAIClient;
 import ai.protify.core.provider.AIProvider;
 import ai.protify.core.provider.AIProviderClient;
 import ai.protify.core.response.MimeType;
@@ -28,11 +38,16 @@ import java.util.Set;
 public enum ProtifyAIProvider implements AIProvider {
     OPEN_AI("OpenAI", OpenAIClient.class, "OPENAI_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF)),
     ANTHROPIC("Anthropic", AnthropicClient.class, "ANTHROPIC_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF)),
-    GOOGLE("Gemini", OpenAIClient.class, "GEMINI_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF, MimeType.HEIC, MimeType.HEIF)),
-    MISTRAL("Mistral", OpenAIClient.class, "MISTRAL_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG)),
-    GROQ("Groq", OpenAIClient.class, "GROQ_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG)),
-    DEEP_SEEK("DeepSeek", OpenAIClient.class, "DEEPSEEK_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG)),
-    X_AI("xAI", OpenAIClient.class, "XAI_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG));
+    GOOGLE("Gemini", GeminiClient.class, "GEMINI_API_KEY", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF, MimeType.HEIC, MimeType.HEIF)),
+    MISTRAL("Mistral", MistralClient.class, "MISTRAL_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF)),
+    GROQ("Groq", GroqClient.class, "GROQ_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP)),
+    DEEP_SEEK("DeepSeek", DeepSeekClient.class, "DEEPSEEK_API_KEY", false, Set.of()),
+    TOGETHER("Together", TogetherClient.class, "TOGETHER_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP)),
+    FIREWORKS("Fireworks", FireworksClient.class, "FIREWORKS_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP)),
+    X_AI("xAI", XAIClient.class, "XAI_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP)),
+    AZURE_OPEN_AI("Azure OpenAI", AzureOpenAIClient.class, "AZURE_OPENAI_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF)),
+    VERTEX_AI("Vertex AI", VertexAIClient.class, "VERTEX_AI_ACCESS_TOKEN", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF, MimeType.HEIC, MimeType.HEIF)),
+    AWS_BEDROCK("AWS Bedrock", BedrockClient.class, "AWS_BEDROCK_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF));
 
     private final String name;
     private final Class<? extends AIProviderClient<?>> providerClientType;
@@ -76,6 +91,31 @@ public enum ProtifyAIProvider implements AIProvider {
             return Map.of(
                     "x-api-key", credential,
                     "anthropic-version", "2023-06-01",
+                    "Content-Type", "application/json"
+            );
+        }
+        if (this == GOOGLE) {
+            return Map.of(
+                    "x-goog-api-key", credential,
+                    "Content-Type", "application/json"
+            );
+        }
+        if (this == AZURE_OPEN_AI) {
+            return Map.of(
+                    "api-key", credential,
+                    "Content-Type", "application/json"
+            );
+        }
+        if (this == VERTEX_AI) {
+            return Map.of(
+                    "Authorization", "Bearer " + credential,
+                    "Content-Type", "application/json"
+            );
+        }
+        if (this == AWS_BEDROCK) {
+            // Bedrock uses SigV4 signing, not a simple header-based auth.
+            // Headers are set directly by BedrockClient. Return content-type only.
+            return Map.of(
                     "Content-Type", "application/json"
             );
         }

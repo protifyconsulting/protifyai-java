@@ -28,18 +28,71 @@ public interface AIModel {
     AIProvider getProvider();
 
     // Anthropic
-    AIModel ANTHROPIC_V1 = SupportedModel.ANTHROPIC_V1;
-    AIModel CLAUDE_SONNET_4_5 = SupportedModel.CLAUDE_SONNET_4_5;
+    AIModel CLAUDE_OPUS_4_6 = SupportedModel.CLAUDE_OPUS_4_6;
+    AIModel CLAUDE_SONNET_4_6 = SupportedModel.CLAUDE_SONNET_4_6;
     AIModel CLAUDE_HAIKU_4_5 = SupportedModel.CLAUDE_HAIKU_4_5;
-    AIModel CLAUDE_OPUS_4_5 = SupportedModel.CLAUDE_OPUS_4_5;
+
+    // Gemini
+    AIModel GEMINI_3_1_PRO_PREVIEW = SupportedModel.GEMINI_3_1_PRO_PREVIEW;
+    AIModel GEMINI_3_FLASH_PREVIEW = SupportedModel.GEMINI_3_FLASH_PREVIEW;
+    AIModel GEMINI_2_5_PRO = SupportedModel.GEMINI_2_5_PRO;
+    AIModel GEMINI_2_5_FLASH = SupportedModel.GEMINI_2_5_FLASH;
+    AIModel GEMINI_2_5_FLASH_LITE = SupportedModel.GEMINI_2_5_FLASH_LITE;
 
     // Open AI
-    AIModel GPT_5_1 = SupportedModel.GPT_5_1;
     AIModel GPT_5_2 = SupportedModel.GPT_5_2;
     AIModel GPT_5_2_PRO = SupportedModel.GPT_5_2_PRO;
+    AIModel GPT_5_2_CODEX = SupportedModel.GPT_5_2_CODEX;
+    AIModel GPT_5_1 = SupportedModel.GPT_5_1;
+    AIModel GPT_5_1_CODEX = SupportedModel.GPT_5_1_CODEX;
     AIModel GPT_5_1_CODEX_MAX = SupportedModel.GPT_5_1_CODEX_MAX;
     AIModel GPT_5_MINI = SupportedModel.GPT_5_MINI;
     AIModel GPT_5_NANO = SupportedModel.GPT_5_NANO;
+
+    // Mistral
+    AIModel MISTRAL_LARGE = SupportedModel.MISTRAL_LARGE;
+    AIModel MISTRAL_MEDIUM = SupportedModel.MISTRAL_MEDIUM;
+    AIModel MISTRAL_SMALL = SupportedModel.MISTRAL_SMALL;
+    AIModel CODESTRAL = SupportedModel.CODESTRAL;
+    AIModel DEVSTRAL = SupportedModel.DEVSTRAL;
+    AIModel MAGISTRAL_MEDIUM = SupportedModel.MAGISTRAL_MEDIUM;
+    AIModel MAGISTRAL_SMALL = SupportedModel.MAGISTRAL_SMALL;
+
+    // Groq
+    AIModel LLAMA_4_SCOUT = SupportedModel.LLAMA_4_SCOUT;
+    AIModel LLAMA_3_3_70B = SupportedModel.LLAMA_3_3_70B;
+    AIModel LLAMA_3_1_8B = SupportedModel.LLAMA_3_1_8B;
+    AIModel GPT_OSS_120B = SupportedModel.GPT_OSS_120B;
+    AIModel QWEN_3_32B_GROQ = SupportedModel.QWEN_3_32B_GROQ;
+
+    // DeepSeek
+    AIModel DEEPSEEK_CHAT = SupportedModel.DEEPSEEK_CHAT;
+    AIModel DEEPSEEK_REASONER = SupportedModel.DEEPSEEK_REASONER;
+
+    // Together
+    AIModel LLAMA_4_MAVERICK_TOGETHER = SupportedModel.LLAMA_4_MAVERICK_TOGETHER;
+    AIModel LLAMA_4_SCOUT_TOGETHER = SupportedModel.LLAMA_4_SCOUT_TOGETHER;
+    AIModel QWEN_3_5_397B_TOGETHER = SupportedModel.QWEN_3_5_397B_TOGETHER;
+
+    // Fireworks
+    AIModel LLAMA_4_MAVERICK_FIREWORKS = SupportedModel.LLAMA_4_MAVERICK_FIREWORKS;
+    AIModel LLAMA_4_SCOUT_FIREWORKS = SupportedModel.LLAMA_4_SCOUT_FIREWORKS;
+    AIModel QWEN_3_8B_FIREWORKS = SupportedModel.QWEN_3_8B_FIREWORKS;
+
+    // xAI
+    AIModel GROK_4_1_FAST = SupportedModel.GROK_4_1_FAST;
+    AIModel GROK_4_1_FAST_NON_REASONING = SupportedModel.GROK_4_1_FAST_NON_REASONING;
+    AIModel GROK_4 = SupportedModel.GROK_4;
+    AIModel GROK_CODE_FAST = SupportedModel.GROK_CODE_FAST;
+
+    // Vertex AI
+    AIModel GEMINI_2_5_PRO_VERTEX = SupportedModel.GEMINI_2_5_PRO_VERTEX;
+    AIModel GEMINI_2_5_FLASH_VERTEX = SupportedModel.GEMINI_2_5_FLASH_VERTEX;
+
+    // AWS Bedrock
+    AIModel CLAUDE_OPUS_4_6_BEDROCK = SupportedModel.CLAUDE_OPUS_4_6_BEDROCK;
+    AIModel CLAUDE_SONNET_4_6_BEDROCK = SupportedModel.CLAUDE_SONNET_4_6_BEDROCK;
+    AIModel CLAUDE_HAIKU_4_5_BEDROCK = SupportedModel.CLAUDE_HAIKU_4_5_BEDROCK;
 
     static AIModel custom(String modelName, AIProvider provider) {
         Objects.requireNonNull(modelName, "Model name cannot be null");

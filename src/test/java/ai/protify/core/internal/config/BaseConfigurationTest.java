@@ -51,7 +51,7 @@ class BaseConfigurationTest {
         config.resetForTesting("non-existent-file", Map.of());
 
         assertNull(config.getProperty(AIConfigProperty.PROVIDER_API_KEY));
-        assertNull(config.getProperty(AIConfigProperty.MAX_OUTPUT_TOKENS));
+        assertEquals((Integer) 4096, config.getProperty(AIConfigProperty.MAX_OUTPUT_TOKENS));
         assertNull(config.getProperty(AIConfigProperty.TEMPERATURE));
         assertFalse(() -> Boolean.TRUE.equals(config.getProperty(AIConfigProperty.PRETTY_PRINT_JSON)));
         assertTrue(() -> Boolean.TRUE.equals(config.getProperty(AIConfigProperty.LOG_TRUNCATE_LARGE_INPUT)));
@@ -84,7 +84,7 @@ class BaseConfigurationTest {
         config.resetForTesting("protifyai-invalid", Map.of());
 
         assertNull(config.getProperty(AIConfigProperty.INSTRUCTIONS));
-        assertNull(config.getProperty(AIConfigProperty.MAX_OUTPUT_TOKENS));
+        assertEquals((Integer) 4096, config.getProperty(AIConfigProperty.MAX_OUTPUT_TOKENS));
         assertNull(config.getProperty(AIConfigProperty.TEMPERATURE));
         assertTrue(() -> Boolean.TRUE.equals(config.getProperty(AIConfigProperty.LOG_TRUNCATE_LARGE_INPUT)));
         assertFalse(() -> Boolean.TRUE.equals(config.getProperty(AIConfigProperty.LOG_REQUESTS)));

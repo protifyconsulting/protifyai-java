@@ -56,7 +56,7 @@ public enum AIConfigProperty {
 
     OVERRIDE_PIPELINE_CONFIG("overridePipelineConfig", false, false, Boolean.class),
 
-    MAX_OUTPUT_TOKENS("clientDefaults.maxOutputTokens", false, null, Integer.class),
+    MAX_OUTPUT_TOKENS("clientDefaults.maxOutputTokens", false, 4096, Integer.class),
     TEMPERATURE("clientDefaults.temperature", false, null, Double.class),
     TOP_P("clientDefaults.topP", false, null, Double.class),
     TOP_K("clientDefaults.topK", false, null, Integer.class),
@@ -64,7 +64,16 @@ public enum AIConfigProperty {
     PRETTY_PRINT_JSON("logging.json.prettyPrint", false, false, Boolean.class),
     LOG_REQUESTS("logging.logRequests", false, false, Boolean.class),
     LOG_TRUNCATE_LARGE_INPUT("logging.truncateLargeInput", false, true, Boolean.class),
-    LOG_RESPONSES("logging.logResponses", false, false, Boolean.class);
+    LOG_RESPONSES("logging.logResponses", false, false, Boolean.class),
+
+    REGION("cloud.region", false, null, String.class),
+    PROJECT_ID("cloud.projectId", false, null, String.class),
+    RESOURCE_NAME("cloud.resourceName", false, null, String.class),
+    DEPLOYMENT_NAME("cloud.deploymentName", false, null, String.class),
+    API_VERSION("cloud.apiVersion", false, null, String.class),
+    AWS_ACCESS_KEY_ID("cloud.aws.accessKeyId", true, null, String.class),
+    AWS_SECRET_ACCESS_KEY("cloud.aws.secretAccessKey", true, null, String.class),
+    AWS_SESSION_TOKEN("cloud.aws.sessionToken", true, null, String.class);
 
     private final String name;
     private final boolean secret;

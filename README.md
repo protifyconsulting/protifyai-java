@@ -1,6 +1,6 @@
 # Protify AI - Java SDK
 
-A lightweight, provider-agnostic Java SDK for building AI-powered applications. Supports OpenAI, Anthropic, and custom providers with a unified API for single requests, multi-step pipelines, streaming, parallel execution, and conditional branching.
+A lightweight, provider-agnostic Java SDK for building AI-powered applications. Supports 12 providers — OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Together, Fireworks, xAI, Azure OpenAI, Google Vertex AI, and AWS Bedrock — with a unified API for single requests, multi-step pipelines, streaming, parallel execution, and conditional branching.
 
 ## Table of Contents
 
@@ -8,6 +8,7 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
 - [Initialization](#initialization)
 - [AI Clients](#ai-clients)
   - [Built-in Models](#built-in-models)
+  - [Cloud Providers](#cloud-providers)
   - [Custom Models and Providers](#custom-models-and-providers)
   - [Client Configuration](#client-configuration)
 - [Requests](#requests)
@@ -93,27 +94,150 @@ An `AIClient` is a reusable, configured entry point for making AI requests. Each
 
 **Anthropic:**
 
-| Constant | Model |
+| Constant | Model ID |
 |---|---|
-| `AIModel.ANTHROPIC_V1` | Default Anthropic model |
-| `AIModel.CLAUDE_SONNET_4_5` | Claude Sonnet 4.5 |
-| `AIModel.CLAUDE_HAIKU_4_5` | Claude Haiku 4.5 |
-| `AIModel.CLAUDE_OPUS_4_5` | Claude Opus 4.5 |
+| `AIModel.CLAUDE_OPUS_4_6` | `claude-opus-4-6` |
+| `AIModel.CLAUDE_SONNET_4_6` | `claude-sonnet-4-6` |
+| `AIModel.CLAUDE_HAIKU_4_5` | `claude-haiku-4-5` |
 
 **OpenAI:**
 
-| Constant | Model |
+| Constant | Model ID |
 |---|---|
-| `AIModel.GPT_5_1` | GPT-5.1 |
-| `AIModel.GPT_5_2` | GPT-5.2 |
-| `AIModel.GPT_5_2_PRO` | GPT-5.2 Pro |
-| `AIModel.GPT_5_1_CODEX_MAX` | GPT-5.1 Codex Max |
-| `AIModel.GPT_5_MINI` | GPT-5 Mini |
-| `AIModel.GPT_5_NANO` | GPT-5 Nano |
+| `AIModel.GPT_5_2` | `gpt-5.2` |
+| `AIModel.GPT_5_2_PRO` | `gpt-5.2-pro` |
+| `AIModel.GPT_5_2_CODEX` | `gpt-5.2-codex` |
+| `AIModel.GPT_5_1` | `gpt-5.1` |
+| `AIModel.GPT_5_1_CODEX` | `gpt-5.1-codex` |
+| `AIModel.GPT_5_1_CODEX_MAX` | `gpt-5.1-codex-max` |
+| `AIModel.GPT_5_MINI` | `gpt-5-mini` |
+| `AIModel.GPT_5_NANO` | `gpt-5-nano` |
+
+**Google Gemini:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.GEMINI_3_1_PRO_PREVIEW` | `gemini-3.1-pro-preview` |
+| `AIModel.GEMINI_3_FLASH_PREVIEW` | `gemini-3-flash-preview` |
+| `AIModel.GEMINI_2_5_PRO` | `gemini-2.5-pro` |
+| `AIModel.GEMINI_2_5_FLASH` | `gemini-2.5-flash` |
+| `AIModel.GEMINI_2_5_FLASH_LITE` | `gemini-2.5-flash-lite` |
+
+**Mistral:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.MISTRAL_LARGE` | `mistral-large-latest` |
+| `AIModel.MISTRAL_MEDIUM` | `mistral-medium-latest` |
+| `AIModel.MISTRAL_SMALL` | `mistral-small-latest` |
+| `AIModel.CODESTRAL` | `codestral-latest` |
+| `AIModel.DEVSTRAL` | `devstral-latest` |
+| `AIModel.MAGISTRAL_MEDIUM` | `magistral-medium-latest` |
+| `AIModel.MAGISTRAL_SMALL` | `magistral-small-latest` |
+
+**Groq:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.LLAMA_4_SCOUT` | `meta-llama/llama-4-scout-17b-16e-instruct` |
+| `AIModel.LLAMA_3_3_70B` | `llama-3.3-70b-versatile` |
+| `AIModel.LLAMA_3_1_8B` | `llama-3.1-8b-instant` |
+| `AIModel.GPT_OSS_120B` | `openai/gpt-oss-120b` |
+| `AIModel.QWEN_3_32B_GROQ` | `qwen/qwen3-32b` |
+
+**DeepSeek:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.DEEPSEEK_CHAT` | `deepseek-chat` |
+| `AIModel.DEEPSEEK_REASONER` | `deepseek-reasoner` |
+
+**Together:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.LLAMA_4_MAVERICK_TOGETHER` | `meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` |
+| `AIModel.LLAMA_4_SCOUT_TOGETHER` | `meta-llama/Llama-4-Scout-17B-16E-Instruct` |
+| `AIModel.QWEN_3_5_397B_TOGETHER` | `Qwen/Qwen3.5-397B-A17B` |
+
+**Fireworks:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.LLAMA_4_MAVERICK_FIREWORKS` | `accounts/fireworks/models/llama4-maverick-instruct-basic` |
+| `AIModel.LLAMA_4_SCOUT_FIREWORKS` | `accounts/fireworks/models/llama4-scout-instruct-basic` |
+| `AIModel.QWEN_3_8B_FIREWORKS` | `accounts/fireworks/models/qwen3-8b` |
+
+**xAI:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.GROK_4_1_FAST` | `grok-4-1-fast-reasoning` |
+| `AIModel.GROK_4_1_FAST_NON_REASONING` | `grok-4-1-fast-non-reasoning` |
+| `AIModel.GROK_4` | `grok-4` |
+| `AIModel.GROK_CODE_FAST` | `grok-code-fast` |
+
+**Google Vertex AI:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.GEMINI_2_5_PRO_VERTEX` | `gemini-2.5-pro` |
+| `AIModel.GEMINI_2_5_FLASH_VERTEX` | `gemini-2.5-flash` |
+
+**AWS Bedrock:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.CLAUDE_OPUS_4_6_BEDROCK` | `anthropic.claude-opus-4-6-v1` |
+| `AIModel.CLAUDE_SONNET_4_6_BEDROCK` | `anthropic.claude-sonnet-4-6` |
+| `AIModel.CLAUDE_HAIKU_4_5_BEDROCK` | `anthropic.claude-haiku-4-5-20251001-v1:0` |
+
+All built-in models use auto-updating aliases where available. For pinned versions, use `AIModel.custom()`.
 
 ```java
 AIClient client = AIClient.builder()
-        .model(AIModel.CLAUDE_SONNET_4_5)
+        .model(AIModel.CLAUDE_SONNET_4_6)
+        .build();
+```
+
+### Cloud Providers
+
+Cloud providers require additional configuration beyond an API key.
+
+**Azure OpenAI:**
+
+```java
+AIClient client = AIClient.builder()
+        .provider(ProtifyAIProvider.AZURE_OPEN_AI)
+        .explicitModelVersion("gpt-4o")
+        .resourceName("my-azure-resource")
+        .deploymentName("my-gpt4o-deployment")
+        .apiKey("my-azure-api-key")  // or AZURE_OPENAI_API_KEY env var
+        .build();
+```
+
+**Google Vertex AI:**
+
+```java
+AIClient client = AIClient.builder()
+        .model(AIModel.GEMINI_2_5_PRO_VERTEX)
+        .region("us-central1")
+        .projectId("my-gcp-project")
+        .apiKey("my-oauth-token")  // or VERTEX_AI_ACCESS_TOKEN env var
+        .build();
+```
+
+**AWS Bedrock:**
+
+```java
+AIClient client = AIClient.builder()
+        .model(AIModel.CLAUDE_SONNET_4_6_BEDROCK)
+        .region("us-east-1")
+        // Uses AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY env vars
+        // Or set explicitly:
+        // .awsAccessKeyId("AKIA...")
+        // .awsSecretAccessKey("wJalr...")
+        // .awsSessionToken("FwoG...")  // optional, for temporary credentials
         .build();
 ```
 
@@ -411,7 +535,7 @@ interface Assistant {
 }
 
 AIClient client = AIClient.builder()
-        .model(AIModel.CLAUDE_SONNET_4_5)
+        .model(AIModel.CLAUDE_SONNET_4_6)
         .build();
 
 Assistant assistant = ProtifyAI.create(Assistant.class, client);
@@ -989,11 +1113,26 @@ The default retry policy has `maxRetries(0)` (no retries). Retry policies can be
 
 API keys are resolved in this order:
 
-1. **Environment variable** - each provider has a standard env var (e.g., `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
+1. **Environment variable** - each provider has a standard env var (see table below)
 2. **Explicit configuration** - set via `AIClientBuilder.apiKey("sk-...")`
 3. **Webhook resolution** - configure `providers.apiKeyUrl` and `providers.protifyApiKey` in base configuration for dynamic API key retrieval via a webhook endpoint
 
 If both an environment variable and explicit key are set, the environment variable takes precedence (with a warning logged).
+
+| Provider | Environment Variable |
+|---|---|
+| OpenAI | `OPENAI_API_KEY` |
+| Anthropic | `ANTHROPIC_API_KEY` |
+| Google Gemini | `GEMINI_API_KEY` |
+| Mistral | `MISTRAL_API_KEY` |
+| Groq | `GROQ_API_KEY` |
+| DeepSeek | `DEEPSEEK_API_KEY` |
+| Together | `TOGETHER_API_KEY` |
+| Fireworks | `FIREWORKS_API_KEY` |
+| xAI | `XAI_API_KEY` |
+| Azure OpenAI | `AZURE_OPENAI_API_KEY` |
+| Vertex AI | `VERTEX_AI_ACCESS_TOKEN` |
+| AWS Bedrock | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` (+ optional `AWS_SESSION_TOKEN`) |
 
 ---
 
@@ -1018,7 +1157,7 @@ public class FullExample {
                 .build();
 
         AIClient anthropic = AIClient.builder()
-                .model(AIModel.CLAUDE_SONNET_4_5)
+                .model(AIModel.CLAUDE_SONNET_4_6)
                 .maxOutputTokens(500)
                 .build();
 
