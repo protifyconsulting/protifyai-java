@@ -16,8 +16,7 @@
 
 plugins {
     id("java-library")
-    id("maven-publish")
-    id("signing")
+    id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.2.4"
 }
 
 group = "ai.protify"
@@ -48,55 +47,34 @@ tasks.test {
     useJUnitPlatform()
 }
 
-configure<PublishingExtension> {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
+centralPortal {
+    username = findProperty("sonatypeUsername") as String? ?: System.getenv("SONATYPE_USERNAME")
+    password = findProperty("sonatypePassword") as String? ?: System.getenv("SONATYPE_PASSWORD")
 
-            pom {
-                name.set("Protify AI")
-                description.set("Protify AI Zero Dependency Java SDK")
-                url.set("https://github.com/protifyai/protifyai-java")
+    pom {
+        name = "Protify AI"
+        description = "Protify AI Zero Dependency Java SDK"
+        url = "https://github.com/protifyconsulting/protifyai-java"
 
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("protify")
-                        name.set("Protify Consulting LLC")
-                        email.set("jkuryla@protify.ai")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/protifyconsulting/protifyai-java.git")
-                    developerConnection.set("scm:git:ssh://github.com/protifyconsulting/protifyai-java.git")
-                    url.set("https://github.com/protifyconsulting/protifyai-java")
-                }
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
             }
         }
-    }
 
-    repositories {
-        maven {
-            name = "OSSRH"
-            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
-
-            credentials {
-                username = findProperty("ossrhUsername") as String? ?: System.getenv("OSSRH_USERNAME")
-                password = findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASSWORD")
+        developers {
+            developer {
+                id = "protify"
+                name = "Protify Consulting LLC"
+                email = "jkuryla@protify.ai"
             }
         }
-    }
-}
 
-configure<SigningExtension> {
-    sign(the<PublishingExtension>().publications["mavenJava"])
+        scm {
+            connection = "scm:git:git://github.com/protifyconsulting/protifyai-java.git"
+            developerConnection = "scm:git:ssh://github.com/protifyconsulting/protifyai-java.git"
+            url = "https://github.com/protifyconsulting/protifyai-java"
+        }
+    }
 }

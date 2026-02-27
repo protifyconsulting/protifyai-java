@@ -16,6 +16,12 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
   - [Request Configuration](#request-configuration)
 - [Responses](#responses)
 - [Structured Output](#structured-output)
+- [Declarative AI Services](#declarative-ai-services)
+  - [Basic Usage](#basic-usage)
+  - [Annotations](#annotations)
+  - [Return Types](#return-types)
+  - [Streaming and Async](#streaming-and-async)
+  - [Configuration Overrides](#configuration-overrides)
 - [Streaming](#streaming)
 - [Async Execution](#async-execution)
 - [Pipelines](#pipelines)
@@ -355,6 +361,175 @@ public class GitHubRepo {
 | `List<T>` | array |
 | `Map<String, T>` | object |
 | Nested POJOs | object |
+
+---
+
+## Declarative AI Services
+
+Define AI-powered interfaces with annotations and let the SDK generate implementations via JDK dynamic proxies. This eliminates boilerplate for common AI call patterns.
+
+**Before (imperative):**
+
+```java
+AIResponse response = client.newRequest()
+        .instructions("You are a sentiment analyzer")
+        .addInput("Analyze the sentiment of: I love this product!")
+        .build().execute();
+Sentiment result = response.as(Sentiment.class);
+```
+
+**After (declarative):**
+
+```java
+@AIService
+interface SentimentAnalyzer {
+    @Instructions("You are a sentiment analyzer")
+    @UserMessage("Analyze the sentiment of: {{text}}")
+    Sentiment analyze(@V("text") String text);
+}
+
+SentimentAnalyzer analyzer = ProtifyAI.create(SentimentAnalyzer.class, client);
+Sentiment result = analyzer.analyze("I love this product!");
+```
+
+### Basic Usage
+
+1. Define an interface annotated with `@AIService`
+2. Annotate methods with `@UserMessage` (the prompt template) and optionally `@Instructions` (the system prompt)
+3. Annotate all parameters with `@V` to bind them to `{{placeholder}}` variables in the template
+4. Call `ProtifyAI.create()` to get a proxy implementation
+
+```java
+@AIService
+@Instructions("You are a helpful assistant.")
+interface Assistant {
+    @UserMessage("Summarize the following text in {{sentences}} sentences: {{text}}")
+    String summarize(@V("text") String text, @V("sentences") int sentences);
+
+    @UserMessage("Translate the following text to {{language}}: {{text}}")
+    String translate(@V("text") String text, @V("language") String language);
+}
+
+AIClient client = AIClient.builder()
+        .model(AIModel.CLAUDE_SONNET_4_5)
+        .build();
+
+Assistant assistant = ProtifyAI.create(Assistant.class, client);
+
+String summary = assistant.summarize("Long article text here...", 3);
+String translated = assistant.translate("Hello world", "French");
+```
+
+`@Instructions` on the interface applies to all methods as a default. A method-level `@Instructions` overrides the interface-level value for that method.
+
+### Annotations
+
+| Annotation | Target | Required | Purpose |
+|---|---|---|---|
+| `@AIService` | Interface | Yes | Marks the interface for proxy generation |
+| `@Instructions` | Interface, Method | No | System prompt. Method-level overrides interface-level |
+| `@UserMessage` | Method | Yes | Message template with `{{variable}}` placeholders |
+| `@V` | Parameter | Yes | Binds a method parameter to a template variable |
+| `@Temperature` | Method | No | Per-method temperature override |
+| `@MaxTokens` | Method | No | Per-method max output tokens override |
+
+### Return Types
+
+The proxy automatically maps the AI response to the method's return type:
+
+| Return Type | Behavior |
+|---|---|
+| `String` | Returns `response.text()` directly |
+| POJO | Deserializes JSON via `response.as(Class)`. Adds "Respond with valid JSON only" guidance to the system prompt |
+| `List<T>` | Deserializes JSON array via `response.asList(Class)`. Adds JSON array guidance |
+| Enum | Case-insensitive match on `response.text().trim()`. Adds "Respond with exactly one of: VALUE1, VALUE2" guidance |
+| `int`, `boolean`, etc. | Parses `response.text().trim()`. Adds format guidance |
+| `AIResponse` | Returns the raw response object |
+| `AIStreamResponse` | Uses `executeStream()` instead of `execute()` |
+| `CompletableFuture<T>` | Wraps execution in `CompletableFuture.supplyAsync()`, maps the inner type |
+| `void` | Executes the request but discards the response |
+
+```java
+@AIService
+interface Analyzer {
+    @UserMessage("Classify the sentiment of: {{text}}")
+    Sentiment classifySentiment(@V("text") String text);
+
+    @UserMessage("Extract key entities from: {{text}}")
+    List<Entity> extractEntities(@V("text") String text);
+
+    @UserMessage("Rate the quality of this text from 1-10: {{text}}")
+    int rateQuality(@V("text") String text);
+
+    @UserMessage("Is this text written in English? {{text}}")
+    boolean isEnglish(@V("text") String text);
+}
+```
+
+### Streaming and Async
+
+Return `AIStreamResponse` to stream tokens in real time, or `CompletableFuture<T>` for async execution:
+
+```java
+@AIService
+interface Writer {
+    @UserMessage("Write a story about: {{topic}}")
+    AIStreamResponse writeStory(@V("topic") String topic);
+
+    @UserMessage("Summarize: {{text}}")
+    CompletableFuture<String> summarizeAsync(@V("text") String text);
+
+    @UserMessage("Analyze: {{text}}")
+    CompletableFuture<Analysis> analyzeAsync(@V("text") String text);
+}
+
+Writer writer = ProtifyAI.create(Writer.class, client);
+
+// Streaming
+AIStreamResponse stream = writer.writeStory("a dragon");
+stream.onToken(token -> System.out.print(token));
+AIResponse fullResponse = stream.toResponse();
+
+// Async
+CompletableFuture<String> future = writer.summarizeAsync("Long text...");
+String summary = future.join();
+```
+
+### Configuration Overrides
+
+Use `@Temperature` and `@MaxTokens` to override client-level settings on a per-method basis:
+
+```java
+@AIService
+interface ContentGenerator {
+    @Temperature(0.9)
+    @MaxTokens(2000)
+    @UserMessage("Write a creative story about: {{topic}}")
+    String writeCreativeStory(@V("topic") String topic);
+
+    @Temperature(0.1)
+    @MaxTokens(100)
+    @UserMessage("Extract the main topic from: {{text}}")
+    String extractTopic(@V("text") String text);
+}
+```
+
+### Validation
+
+All annotation and template errors are caught eagerly at `ProtifyAI.create()` time, not at method invocation time:
+
+- The target must be an interface
+- The interface must be annotated with `@AIService`
+- Every non-default method must have `@UserMessage`
+- Every parameter must be annotated with `@V`
+
+```java
+// Throws IllegalArgumentException immediately with a descriptive message
+ProtifyAI.create(NotAnInterface.class, client);
+ProtifyAI.create(MissingAIServiceAnnotation.class, client);
+ProtifyAI.create(MethodMissingUserMessage.class, client);
+ProtifyAI.create(ParamMissingV.class, client);
+```
 
 ---
 

@@ -18,6 +18,7 @@ package ai.protify.core;
 
 import ai.protify.core.internal.config.BaseConfiguration;
 import ai.protify.core.internal.config.Configuration;
+import ai.protify.core.internal.service.AIServiceProxy;
 
 public class ProtifyAI {
 
@@ -33,5 +34,9 @@ public class ProtifyAI {
 
     public static Configuration getBaseConfiguration() {
         return BaseConfiguration.getBaseConfiguration();
+    }
+
+    public static <T> T create(Class<T> serviceInterface, AIClient client) {
+        return AIServiceProxy.create(serviceInterface, client);
     }
 }
