@@ -395,11 +395,13 @@ public class ProtifyJson {
     private static <T> T constructObject(Map<String, Object> map, Class<T> type) {
         T instance;
         try {
-            instance = type.getDeclaredConstructor().newInstance();
+            java.lang.reflect.Constructor<T> ctor = type.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            instance = ctor.newInstance();
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException(
                     type.getName() + " has no no-arg constructor. "
-                    + "Classes used with fromJson must have a public no-arg constructor.", e);
+                    + "Classes used with fromJson must have a no-arg constructor.", e);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Failed to instantiate " + type.getName() + ": " + e.getMessage(), e);

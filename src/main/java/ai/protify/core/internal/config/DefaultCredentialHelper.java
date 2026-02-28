@@ -20,9 +20,18 @@ import ai.protify.core.provider.AIProvider;
 import ai.protify.core.internal.util.Logger;
 import ai.protify.core.internal.util.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class DefaultCredentialHelper implements CredentialHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCredentialHelper.class);
+    private static final String CREDS_FILE = ".creds";
+    private static volatile Map<String, String> credsFileCache;
 
     @Override
     public String getCredential(AIProvider provider, Configuration config) {
@@ -43,9 +52,51 @@ public class DefaultCredentialHelper implements CredentialHelper {
             return apiKeyFromConfig;
         }
 
+        // 3. .creds file on the classpath
+        if (provider != null) {
+            String apiKeyFromFile = loadCredsFile().get(provider.getApiKeyVarName());
+            if (apiKeyFromFile != null && !apiKeyFromFile.isEmpty()) {
+                return apiKeyFromFile;
+            }
+        }
+
         throw new IllegalArgumentException("No API key found for provider " +
                 (provider != null ? provider.getName() : "unknown") +
                 ". Set the " + (provider != null ? provider.getApiKeyVarName() : "") +
-                " environment variable or configure providers.apiKey.");
+                " environment variable, configure providers.apiKey, or add it to a .creds file on the classpath.");
+    }
+
+    private static Map<String, String> loadCredsFile() {
+        if (credsFileCache != null) {
+            return credsFileCache;
+        }
+        synchronized (DefaultCredentialHelper.class) {
+            if (credsFileCache != null) {
+                return credsFileCache;
+            }
+            Map<String, String> entries = new ConcurrentHashMap<>();
+            InputStream is = DefaultCredentialHelper.class.getClassLoader().getResourceAsStream(CREDS_FILE);
+            if (is != null) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        line = line.trim();
+                        if (line.isEmpty() || line.startsWith("#")) {
+                            continue;
+                        }
+                        int eq = line.indexOf('=');
+                        if (eq > 0) {
+                            String key = line.substring(0, eq).trim();
+                            String value = line.substring(eq + 1).trim();
+                            entries.put(key, value);
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to read .creds file from classpath: {}", e.getMessage());
+                }
+            }
+            credsFileCache = entries;
+            return credsFileCache;
+        }
     }
 }

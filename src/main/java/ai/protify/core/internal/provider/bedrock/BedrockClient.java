@@ -18,6 +18,7 @@ package ai.protify.core.internal.provider.bedrock;
 
 import ai.protify.core.internal.config.AIConfigProperty;
 import ai.protify.core.internal.exception.ProtifyApiException;
+import ai.protify.core.internal.util.http.ProtifyHttpClient;
 import ai.protify.core.internal.provider.bedrock.auth.AwsCredentialResolver;
 import ai.protify.core.internal.provider.bedrock.auth.AwsCredentials;
 import ai.protify.core.internal.provider.bedrock.auth.AwsSigV4Signer;
@@ -86,8 +87,7 @@ public class BedrockClient extends ProtifyAIProviderClient<BedrockRequest> {
                     reqBuilder.build(), HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
-                throw new ProtifyApiException(
-                        "Bedrock API returned HTTP " + response.statusCode() + ": " + response.body());
+                throw ProtifyHttpClient.createApiException(response.statusCode(), response.body());
             }
 
             String rawJson = response.body();

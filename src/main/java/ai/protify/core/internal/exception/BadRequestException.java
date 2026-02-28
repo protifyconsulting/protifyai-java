@@ -16,7 +16,7 @@
 
 package ai.protify.core.internal.exception;
 
-public class BadRequestException extends RuntimeException {
+public class BadRequestException extends ProtifyApiException {
 
     public BadRequestException() {
         super();
@@ -36,5 +36,10 @@ public class BadRequestException extends RuntimeException {
 
     protected BadRequestException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public BadRequestException(String message, int statusCode, String providerMessage,
+                                String errorType, String rawResponseBody) {
+        super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

@@ -83,6 +83,7 @@ public interface AIModel {
     AIModel GROK_4_1_FAST = SupportedModel.GROK_4_1_FAST;
     AIModel GROK_4_1_FAST_NON_REASONING = SupportedModel.GROK_4_1_FAST_NON_REASONING;
     AIModel GROK_4 = SupportedModel.GROK_4;
+    AIModel GROK_3_MINI = SupportedModel.GROK_3_MINI;
     AIModel GROK_CODE_FAST = SupportedModel.GROK_CODE_FAST;
 
     // Vertex AI

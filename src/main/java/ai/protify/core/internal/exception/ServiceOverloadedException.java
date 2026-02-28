@@ -16,7 +16,7 @@
 
 package ai.protify.core.internal.exception;
 
-public class ServiceOverloadedException extends RuntimeException {
+public class ServiceOverloadedException extends ProtifyApiException {
 
     public ServiceOverloadedException() {
         super();
@@ -36,5 +36,10 @@ public class ServiceOverloadedException extends RuntimeException {
 
     protected ServiceOverloadedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public ServiceOverloadedException(String message, int statusCode, String providerMessage,
+                                       String errorType, String rawResponseBody) {
+        super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

@@ -66,6 +66,7 @@ public final class ProtifyJsonObject {
     private Object parseValue(JsonScanner scanner) {
         scanner.skipWhitespace();
         char c = scanner.peek();
+        if (c == 0) return null;
         if (c == '{') return parseObject(scanner);
         if (c == '[') return parseArray(scanner);
         if (c == '"') return parseString(scanner);
@@ -165,10 +166,25 @@ public final class ProtifyJsonObject {
 
     private Number parseNumber(JsonScanner scanner) {
         StringBuilder sb = new StringBuilder();
-        while (Character.isDigit(scanner.peek()) || "-+.eE".indexOf(scanner.peek()) != -1) {
-            sb.append(scanner.next());
+        while (true) {
+            char c = scanner.peek();
+            if (Character.isDigit(c) || "-+.eE".indexOf(c) != -1) {
+                sb.append(scanner.next());
+            } else if (c == '_') {
+                // Skip underscores used as digit grouping (e.g. 2_161_000)
+                scanner.next();
+            } else if (c == ',' && isThousandsSeparator(scanner)) {
+                // Skip commas used as digit grouping (e.g. 2,161,000)
+                scanner.next();
+            } else {
+                break;
+            }
         }
         String val = sb.toString();
+        if (val.isEmpty()) {
+            throw new NumberFormatException(
+                    "Expected a number at position " + scanner.pos + " but found '" + scanner.peek() + "'");
+        }
         try {
             if (val.contains(".") || val.contains("e") || val.contains("E")) {
                 return Double.parseDouble(val);
@@ -177,6 +193,15 @@ public final class ProtifyJsonObject {
         } catch (NumberFormatException e) {
             return new BigDecimal(val);
         }
+    }
+
+    private boolean isThousandsSeparator(JsonScanner scanner) {
+        // A comma is a thousands separator if the next 3 characters are digits
+        // and the 4th is NOT a digit (e.g. ",000}" or ",161," but not ",1234")
+        return Character.isDigit(scanner.peekAt(1))
+                && Character.isDigit(scanner.peekAt(2))
+                && Character.isDigit(scanner.peekAt(3))
+                && !Character.isDigit(scanner.peekAt(4));
     }
 
     private Boolean parseBoolean(JsonScanner scanner) {
@@ -202,6 +227,11 @@ public final class ProtifyJsonObject {
 
         char peek() {
             return pos < json.length() ? json.charAt(pos) : 0;
+        }
+
+        char peekAt(int offset) {
+            int idx = pos + offset;
+            return idx < json.length() ? json.charAt(idx) : 0;
         }
 
         char next() {

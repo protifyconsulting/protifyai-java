@@ -185,7 +185,7 @@ public class ProtifyHttpClient {
                 .handle((response, ex) -> {
                     if (ex == null && response.statusCode() == 200) return CompletableFuture.completedFuture(response);
 
-                    Exception error = (ex != null) ? (Exception) ex : translateStatusToException(response.statusCode());
+                    Exception error = (ex != null) ? (Exception) ex : translateStatusToException(response.statusCode(), response.body());
 
                     if (attempt < retryPolicy.getMaxRetries() && shouldRetry(error, retryPolicy)) {
                         LOGGER.info( "Attempt {} failed, retrying in {}ms: {}",
@@ -249,7 +249,9 @@ public class ProtifyHttpClient {
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofLines())
                 .thenAccept(response -> {
                     if (response.statusCode() != 200) {
-                        throw translateStatusToException(response.statusCode());
+                        StringBuilder errorBody = new StringBuilder();
+                        response.body().forEach(line -> errorBody.append(line).append("\n"));
+                        throw translateStatusToException(response.statusCode(), errorBody.toString().trim());
                     }
                     response.body().forEach(parser::feedLine);
                     parser.finish();
@@ -257,16 +259,62 @@ public class ProtifyHttpClient {
                 });
     }
 
-    private RuntimeException translateStatusToException(int statusCode) {
+    public static RuntimeException createApiException(int statusCode, String responseBody) {
+        ApiErrorParser.ParsedError parsed = ApiErrorParser.parse(statusCode, responseBody);
+        String displayMessage = buildDisplayMessage(statusCode, parsed);
+
+        if (parsed.contentFiltered) {
+            return new ContentFilteredException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+        }
+
         switch (statusCode) {
-            case 401: case 403: return new AccessDeniedException("Access denied: " + statusCode);
-            case 408: case 504: case 502: return new TimeoutException("Timeout: " + statusCode);
-            case 429: return new RateLimitExceededException("Rate limit: " + statusCode);
-            case 400: return new BadRequestException("Bad request: " + statusCode);
-            case 404: return new NotFoundException("Not found: " + statusCode);
-            case 503: return new ServiceUnavailableException("Unavailable: " + statusCode);
-            case 529: return new ServiceOverloadedException("Overloaded: " + statusCode);
-            default: return new ServiceException("HTTP failure: " + statusCode);
+            case 401: case 403: return new AccessDeniedException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+            case 408: case 504: case 502: return new TimeoutException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+            case 429: return new RateLimitExceededException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+            case 400: return new BadRequestException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+            case 404: return new NotFoundException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+            case 503: return new ServiceUnavailableException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+            case 529: return new ServiceOverloadedException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+            default: return new ServiceException(displayMessage, statusCode,
+                    parsed.message, parsed.errorType, parsed.rawBody);
+        }
+    }
+
+    private RuntimeException translateStatusToException(int statusCode, String responseBody) {
+        return createApiException(statusCode, responseBody);
+    }
+
+    private static String buildDisplayMessage(int statusCode, ApiErrorParser.ParsedError parsed) {
+        String label = parsed.contentFiltered ? "Content safety violation" : httpCategoryLabel(statusCode);
+
+        if (parsed.message != null) {
+            String typeSuffix = (parsed.errorType != null) ? " [" + parsed.errorType + "]" : "";
+            return label + " (HTTP " + statusCode + "): " + parsed.message + typeSuffix;
+        }
+
+        // Fallback: unparseable body
+        String detail = (parsed.rawBody != null && !parsed.rawBody.isEmpty()) ? " - " + parsed.rawBody : "";
+        return label + ": " + statusCode + detail;
+    }
+
+    private static String httpCategoryLabel(int statusCode) {
+        switch (statusCode) {
+            case 400: return "Bad request";
+            case 401: case 403: return "Access denied";
+            case 404: return "Not found";
+            case 408: case 502: case 504: return "Timeout";
+            case 429: return "Rate limit exceeded";
+            case 503: return "Service unavailable";
+            case 529: return "Service overloaded";
+            default: return "HTTP failure";
         }
     }
 

@@ -16,7 +16,7 @@
 
 package ai.protify.core.internal.exception;
 
-public class AccessDeniedException extends RuntimeException {
+public class AccessDeniedException extends ProtifyApiException {
 
     public AccessDeniedException() {
         super();
@@ -36,5 +36,10 @@ public class AccessDeniedException extends RuntimeException {
 
     protected AccessDeniedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public AccessDeniedException(String message, int statusCode, String providerMessage,
+                                  String errorType, String rawResponseBody) {
+        super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

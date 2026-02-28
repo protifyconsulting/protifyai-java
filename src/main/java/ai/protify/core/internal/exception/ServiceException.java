@@ -16,7 +16,7 @@
 
 package ai.protify.core.internal.exception;
 
-public class ServiceException extends RuntimeException {
+public class ServiceException extends ProtifyApiException {
 
     public ServiceException() {
         super();
@@ -36,5 +36,10 @@ public class ServiceException extends RuntimeException {
 
     protected ServiceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public ServiceException(String message, int statusCode, String providerMessage,
+                              String errorType, String rawResponseBody) {
+        super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

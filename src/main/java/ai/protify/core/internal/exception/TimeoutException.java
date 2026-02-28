@@ -16,7 +16,7 @@
 
 package ai.protify.core.internal.exception;
 
-public class TimeoutException extends RuntimeException {
+public class TimeoutException extends ProtifyApiException {
 
     public TimeoutException() {
         super();
@@ -36,5 +36,10 @@ public class TimeoutException extends RuntimeException {
 
     protected TimeoutException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public TimeoutException(String message, int statusCode, String providerMessage,
+                              String errorType, String rawResponseBody) {
+        super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

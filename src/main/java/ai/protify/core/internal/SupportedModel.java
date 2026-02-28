@@ -79,6 +79,7 @@ public enum SupportedModel implements AIModel {
     GROK_4_1_FAST("grok-4-1-fast-reasoning", ProtifyAIProvider.X_AI),
     GROK_4_1_FAST_NON_REASONING("grok-4-1-fast-non-reasoning", ProtifyAIProvider.X_AI),
     GROK_4("grok-4", ProtifyAIProvider.X_AI),
+    GROK_3_MINI("grok-3-mini", ProtifyAIProvider.X_AI),
     GROK_CODE_FAST("grok-code-fast", ProtifyAIProvider.X_AI),
 
     // Vertex AI

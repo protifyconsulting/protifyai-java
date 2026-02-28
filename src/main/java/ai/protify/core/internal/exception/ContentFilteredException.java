@@ -16,30 +16,30 @@
 
 package ai.protify.core.internal.exception;
 
-public class RateLimitExceededException extends ProtifyApiException {
+public class ContentFilteredException extends ProtifyApiException {
 
-    public RateLimitExceededException() {
+    public ContentFilteredException() {
         super();
     }
 
-    public RateLimitExceededException(String message) {
+    public ContentFilteredException(String message) {
         super(message);
     }
 
-    public RateLimitExceededException(String message, Throwable cause) {
+    public ContentFilteredException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public RateLimitExceededException(Throwable cause) {
+    public ContentFilteredException(Throwable cause) {
         super(cause);
     }
 
-    protected RateLimitExceededException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected ContentFilteredException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public RateLimitExceededException(String message, int statusCode, String providerMessage,
-                                       String errorType, String rawResponseBody) {
+    public ContentFilteredException(String message, int statusCode, String providerMessage,
+                                     String errorType, String rawResponseBody) {
         super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

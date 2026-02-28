@@ -43,8 +43,20 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+tasks.processResources {
+    exclude(".creds")
+}
+
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("smoke")
+    }
+}
+
+tasks.register<Test>("smokeTest") {
+    useJUnitPlatform {
+        includeTags("smoke")
+    }
 }
 
 centralPortal {

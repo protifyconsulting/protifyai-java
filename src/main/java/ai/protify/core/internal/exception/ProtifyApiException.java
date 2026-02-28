@@ -18,23 +18,73 @@ package ai.protify.core.internal.exception;
 
 public class ProtifyApiException extends RuntimeException {
 
+    private final int statusCode;
+    private final String providerMessage;
+    private final String errorType;
+    private final String rawResponseBody;
+
     public ProtifyApiException() {
         super();
+        this.statusCode = 0;
+        this.providerMessage = null;
+        this.errorType = null;
+        this.rawResponseBody = null;
     }
 
     public ProtifyApiException(String message) {
         super(message);
+        this.statusCode = 0;
+        this.providerMessage = null;
+        this.errorType = null;
+        this.rawResponseBody = null;
     }
 
     public ProtifyApiException(String message, Throwable cause) {
         super(message, cause);
+        this.statusCode = 0;
+        this.providerMessage = null;
+        this.errorType = null;
+        this.rawResponseBody = null;
     }
 
     public ProtifyApiException(Throwable cause) {
         super(cause);
+        this.statusCode = 0;
+        this.providerMessage = null;
+        this.errorType = null;
+        this.rawResponseBody = null;
     }
 
     protected ProtifyApiException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+        this.statusCode = 0;
+        this.providerMessage = null;
+        this.errorType = null;
+        this.rawResponseBody = null;
+    }
+
+    public ProtifyApiException(String message, int statusCode, String providerMessage,
+                                String errorType, String rawResponseBody) {
+        super(message);
+        this.statusCode = statusCode;
+        this.providerMessage = providerMessage;
+        this.errorType = errorType;
+        this.rawResponseBody = rawResponseBody;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public String getProviderMessage() {
+        return providerMessage;
+    }
+
+    public String getErrorType() {
+        return errorType;
+    }
+
+    public String getRawResponseBody() {
+        return rawResponseBody;
     }
 }

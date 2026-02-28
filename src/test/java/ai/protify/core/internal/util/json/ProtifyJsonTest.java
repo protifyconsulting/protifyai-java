@@ -1180,6 +1180,99 @@ class ProtifyJsonTest {
             assertEquals((short) 0, bean.getShortVal());
             assertEquals((byte) 7, bean.getByteVal());
         }
+
+        @Test
+        @DisplayName("Should parse integer with underscore digit grouping")
+        void testUnderscoreGroupedInteger() {
+            String json = "{\"name\":\"Paris\",\"age\":2_161_000}";
+            SimpleBean bean = ProtifyJson.fromJson(json, SimpleBean.class);
+
+            assertEquals("Paris", bean.getName());
+            assertEquals(2161000, bean.getAge());
+        }
+
+        @Test
+        @DisplayName("Should parse decimal with underscore digit grouping")
+        void testUnderscoreGroupedDecimal() {
+            String json = "{\"doubleVal\":1_234.567_8}";
+            WrapperTypes bean = ProtifyJson.fromJson(json, WrapperTypes.class);
+
+            assertEquals(1234.5678, bean.getDoubleVal(), 0.0001);
+        }
+
+        @Test
+        @DisplayName("Should parse underscore-grouped number in array")
+        void testUnderscoreGroupedInArray() {
+            String json = "[1_000, 2_000, 3_000]";
+            List<SimpleBean> dummyParse = ProtifyJson.fromJsonList(
+                    "[{\"name\":\"a\",\"age\":1_000},{\"name\":\"b\",\"age\":2_000},{\"name\":\"c\",\"age\":3_000}]",
+                    SimpleBean.class);
+
+            assertEquals(3, dummyParse.size());
+            assertEquals(1000, dummyParse.get(0).getAge());
+            assertEquals(2000, dummyParse.get(1).getAge());
+            assertEquals(3000, dummyParse.get(2).getAge());
+        }
+
+        @Test
+        @DisplayName("Should parse integer with comma thousands separators")
+        void testCommaGroupedInteger() {
+            String json = "{\"name\":\"Paris\",\"age\":2,161,000}";
+            SimpleBean bean = ProtifyJson.fromJson(json, SimpleBean.class);
+
+            assertEquals("Paris", bean.getName());
+            assertEquals(2161000, bean.getAge());
+        }
+
+        @Test
+        @DisplayName("Should parse comma-grouped number as object value alongside other keys")
+        void testCommaGroupedInObject() {
+            String json = "{\"name\":\"Tokyo\",\"age\":13,960,000}";
+            SimpleBean bean = ProtifyJson.fromJson(json, SimpleBean.class);
+
+            assertEquals("Tokyo", bean.getName());
+            assertEquals(13960000, bean.getAge());
+        }
+
+        @Test
+        @DisplayName("Should not treat comma as thousands separator when group is not exactly 3 digits")
+        void testCommaAsJsonDelimiterInArray() {
+            List<SimpleBean> list = ProtifyJson.fromJsonList(
+                    "[{\"name\":\"a\",\"age\":1},{\"name\":\"b\",\"age\":23}]",
+                    SimpleBean.class);
+
+            assertEquals(2, list.size());
+            assertEquals(1, list.get(0).getAge());
+            assertEquals(23, list.get(1).getAge());
+        }
+
+        @Test
+        @DisplayName("Should throw for non-numeric character where number expected")
+        void testInvalidNumberThrows() {
+            assertThrows(RuntimeException.class, () ->
+                    ProtifyJson.fromJson("{\"val\":@bad}", SimpleBean.class));
+        }
+
+        @Test
+        @DisplayName("Should return null for null input")
+        void testNullInput() {
+            SimpleBean bean = ProtifyJson.fromJson(null, SimpleBean.class);
+            assertNull(bean);
+        }
+
+        @Test
+        @DisplayName("Should return null for empty input")
+        void testEmptyInput() {
+            SimpleBean bean = ProtifyJson.fromJson("", SimpleBean.class);
+            assertNull(bean);
+        }
+
+        @Test
+        @DisplayName("Should return null for whitespace-only input")
+        void testWhitespaceOnlyInput() {
+            SimpleBean bean = ProtifyJson.fromJson("   ", SimpleBean.class);
+            assertNull(bean);
+        }
     }
 
     // ---------------------------------------------------------------

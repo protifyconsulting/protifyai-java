@@ -16,7 +16,7 @@
 
 package ai.protify.core.internal.exception;
 
-public class NotFoundException extends RuntimeException {
+public class NotFoundException extends ProtifyApiException {
 
     public NotFoundException() {
         super();
@@ -36,5 +36,10 @@ public class NotFoundException extends RuntimeException {
 
     protected NotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public NotFoundException(String message, int statusCode, String providerMessage,
+                              String errorType, String rawResponseBody) {
+        super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

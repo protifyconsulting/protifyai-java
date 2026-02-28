@@ -35,11 +35,22 @@ import ai.protify.core.tool.AIToolCall;
 import ai.protify.core.tool.AIToolResult;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ChatCompletionsRequest extends ProtifyAIProviderRequest {
+
+    private static final Set<AIConfigProperty> UNSUPPORTED = Collections.unmodifiableSet(
+            EnumSet.of(AIConfigProperty.TOP_K));
+
+    @Override
+    protected Set<AIConfigProperty> getUnsupportedParameters() {
+        return UNSUPPORTED;
+    }
 
     private String json;
     private String loggableJson;

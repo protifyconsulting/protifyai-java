@@ -16,19 +16,32 @@
 
 package ai.protify.core.internal.config;
 
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Configuration {
 
     private final Map<AIConfigProperty, Object> properties;
+    private Set<AIConfigProperty> suppressedProperties;
 
     public Configuration(Map<AIConfigProperty, Object> properties) {
         this.properties = properties;
     }
 
+    public void suppressProperty(AIConfigProperty property) {
+        if (suppressedProperties == null) {
+            suppressedProperties = EnumSet.noneOf(AIConfigProperty.class);
+        }
+        suppressedProperties.add(property);
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T getProperty(AIConfigProperty property) {
+        if (suppressedProperties != null && suppressedProperties.contains(property)) {
+            return null;
+        }
         return (T) property.getType().cast(properties.get(property));
     }
 

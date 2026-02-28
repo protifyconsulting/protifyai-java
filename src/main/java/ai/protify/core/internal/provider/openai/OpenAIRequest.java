@@ -28,12 +28,34 @@ import ai.protify.core.tool.AIToolCall;
 import ai.protify.core.tool.AIToolResult;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class OpenAIRequest extends ProtifyAIProviderRequest {
+
+    private static final Set<AIConfigProperty> UNSUPPORTED = Collections.unmodifiableSet(
+            EnumSet.of(AIConfigProperty.TOP_K));
+
+    private static final Set<AIConfigProperty> GPT5_UNSUPPORTED = Collections.unmodifiableSet(
+            EnumSet.of(AIConfigProperty.TEMPERATURE));
+
+    @Override
+    protected Set<AIConfigProperty> getUnsupportedParameters() {
+        return UNSUPPORTED;
+    }
+
+    @Override
+    protected Set<AIConfigProperty> getUnsupportedParametersForModel(String model) {
+        if (model != null && model.startsWith("gpt-5")) {
+            return GPT5_UNSUPPORTED;
+        }
+        return Collections.emptySet();
+    }
 
     private String json;
     private String loggableJson;
@@ -110,15 +132,17 @@ public final class OpenAIRequest extends ProtifyAIProviderRequest {
             inputItems.add(new OpenAIInputMessage("user", contentBlocks));
         }
 
-        // If we have a previous response with tool calls, add function_call items and outputs
+        // If we have a previous response with tool calls, add reasoning + function_call items and outputs
         if (previousResponse != null && previousResponse.hasToolCalls()) {
-            // Add the raw function_call output items from the previous response
+            // Add the raw output items from the previous response (reasoning + function_call)
+            // GPT-5 models require reasoning items to be included alongside function_call items
             Object output = ProtifyJson.parse(previousResponse.getProviderResponse()).get("output");
             if (output instanceof List) {
                 for (Object item : (List<?>) output) {
                     if (item instanceof Map) {
                         Map<String, Object> outputItem = (Map<String, Object>) item;
-                        if ("function_call".equals(outputItem.get("type"))) {
+                        String type = (String) outputItem.get("type");
+                        if ("function_call".equals(type) || "reasoning".equals(type)) {
                             inputItems.add(outputItem);
                         }
                     }

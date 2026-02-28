@@ -16,7 +16,7 @@
 
 package ai.protify.core.internal.exception;
 
-public class ProviderBusyException extends RuntimeException {
+public class ProviderBusyException extends ProtifyApiException {
 
     public ProviderBusyException() {
         super();
@@ -36,5 +36,10 @@ public class ProviderBusyException extends RuntimeException {
 
     protected ProviderBusyException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public ProviderBusyException(String message, int statusCode, String providerMessage,
+                                  String errorType, String rawResponseBody) {
+        super(message, statusCode, providerMessage, errorType, rawResponseBody);
     }
 }

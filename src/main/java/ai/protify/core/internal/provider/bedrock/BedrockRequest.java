@@ -35,9 +35,19 @@ import ai.protify.core.tool.AIToolResult;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public class BedrockRequest extends ProtifyAIProviderRequest {
+
+    private static final Set<AIConfigProperty> UNSUPPORTED = Collections.unmodifiableSet(
+            EnumSet.of(AIConfigProperty.TOP_K));
+
+    @Override
+    protected Set<AIConfigProperty> getUnsupportedParameters() {
+        return UNSUPPORTED;
+    }
 
     private String json;
     private String loggableJson;
