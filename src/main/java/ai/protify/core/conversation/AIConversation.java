@@ -19,6 +19,7 @@ package ai.protify.core.conversation;
 import ai.protify.core.message.AIMessage;
 import ai.protify.core.request.AIInput;
 import ai.protify.core.response.AIResponse;
+import ai.protify.core.response.AIStreamResponse;
 
 import java.util.List;
 
@@ -29,6 +30,12 @@ public interface AIConversation {
     AIResponse send(String text, AIInput... additionalInputs);
 
     AIResponse send(AIInput... inputs);
+
+    AIStreamResponse sendStream(String text);
+
+    AIStreamResponse sendStream(String text, AIInput... additionalInputs);
+
+    AIStreamResponse sendStream(AIInput... inputs);
 
     String getId();
 

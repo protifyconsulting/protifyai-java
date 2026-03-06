@@ -33,9 +33,23 @@ public interface CredentialHelper {
         int quoteStart = json.indexOf('"', colonIndex + 1);
         if (quoteStart < 0) return null;
 
-        int quoteEnd = json.indexOf('"', quoteStart + 1);
-        if (quoteEnd < 0) return null;
+        int quoteEnd = quoteStart + 1;
+        while (quoteEnd < json.length()) {
+            char c = json.charAt(quoteEnd);
+            if (c == '\\') {
+                quoteEnd += 2; // skip escaped character
+                continue;
+            }
+            if (c == '"') break;
+            quoteEnd++;
+        }
+        if (quoteEnd >= json.length()) return null;
 
-        return json.substring(quoteStart + 1, quoteEnd);
+        String raw = json.substring(quoteStart + 1, quoteEnd);
+        return raw.replace("\\\"", "\"")
+                   .replace("\\\\", "\\")
+                   .replace("\\n", "\n")
+                   .replace("\\r", "\r")
+                   .replace("\\t", "\t");
     }
 }

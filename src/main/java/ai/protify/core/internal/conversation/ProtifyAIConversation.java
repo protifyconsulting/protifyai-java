@@ -29,12 +29,15 @@ import ai.protify.core.provider.AIProviderRequest;
 import ai.protify.core.request.AIInput;
 import ai.protify.core.request.AITextInput;
 import ai.protify.core.response.AIResponse;
+import ai.protify.core.response.AIStreamResponse;
+import ai.protify.core.internal.response.ProtifyAIStreamResponse;
 import ai.protify.core.tool.AITool;
 import ai.protify.core.tool.AIToolCall;
 import ai.protify.core.tool.AIToolHandler;
 import ai.protify.core.tool.AIToolResult;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class ProtifyAIConversation implements AIConversation {
 
@@ -87,6 +90,74 @@ public class ProtifyAIConversation implements AIConversation {
     public AIResponse send(AIInput... inputs) {
         List<AIInput> inputList = new ArrayList<>(Arrays.asList(inputs));
         return doSend(null, inputList);
+    }
+
+    @Override
+    public AIStreamResponse sendStream(String text) {
+        List<AIInput> inputs = new ArrayList<>();
+        inputs.add(AITextInput.of(text));
+        return doSendStream(text, inputs);
+    }
+
+    @Override
+    public AIStreamResponse sendStream(String text, AIInput... additionalInputs) {
+        List<AIInput> inputs = new ArrayList<>();
+        if (text != null) {
+            inputs.add(AITextInput.of(text));
+        }
+        Collections.addAll(inputs, additionalInputs);
+        return doSendStream(text, inputs);
+    }
+
+    @Override
+    public AIStreamResponse sendStream(AIInput... inputs) {
+        List<AIInput> inputList = new ArrayList<>(Arrays.asList(inputs));
+        return doSendStream(null, inputList);
+    }
+
+    @SuppressWarnings("unchecked")
+    private AIStreamResponse doSendStream(String text, List<AIInput> inputs) {
+        AIMessage userMessage;
+        if (inputs.size() == 1 && inputs.get(0) instanceof AITextInput) {
+            userMessage = ProtifyAIMessage.userText(text);
+        } else {
+            userMessage = ProtifyAIMessage.userWithInputs(text, inputs);
+        }
+        messages.add(userMessage);
+
+        ProtifyAIRequest request = new ProtifyAIRequest(
+                client,
+                new ArrayList<>(),
+                properties,
+                tools,
+                Collections.emptyMap(),
+                Collections.emptyList(),
+                null,
+                maxToolRounds,
+                new ArrayList<>(messages)
+        );
+
+        AIProviderClient<AIProviderRequest> providerClient =
+                (AIProviderClient<AIProviderRequest>) client.getProviderClient();
+        AIProviderRequest providerRequest = client.getProviderClient()
+                .transformRequest(request, request.deriveConfiguration(null));
+        AIStreamResponse streamResponse = providerClient.executeStream(providerRequest);
+
+        // Wrap to capture the completed response into conversation history
+        ProtifyAIStreamResponse wrapper = new ProtifyAIStreamResponse();
+        streamResponse.onToken(wrapper::pushToken);
+
+        CompletableFuture.runAsync(() -> {
+            AIResponse completed = streamResponse.toResponse();
+            AIMessage assistantMessage = ProtifyAIMessage.fromResponse(completed);
+            messages.add(assistantMessage);
+            if (store != null) {
+                store.save(getState());
+            }
+            wrapper.complete(completed);
+        });
+
+        return wrapper;
     }
 
     @SuppressWarnings("unchecked")
