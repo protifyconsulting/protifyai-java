@@ -51,10 +51,10 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
 ## Quick Start
 
 ```java
-import ai.ai.protify.AIClient;
-import ai.ai.protify.AIModel;
-import ai.ai.protify.ProtifyAI;
-import response.ai.ai.protify.AIResponse;
+import ai.protify.core.AIClient;
+import ai.protify.core.AIModel;
+import ai.protify.core.ProtifyAI;
+import ai.protify.core.response.AIResponse;
 
 public class QuickStart {
     public static void main(String[] args) {
@@ -455,7 +455,7 @@ AnalysisReport report = response.as(AnalysisReport.class);
 Use `@ProtifyJsonProperty` on fields when the JSON key doesn't match the Java field name:
 
 ```java
-import json.util.internal.ai.ai.protify.ProtifyJsonProperty;
+import ai.protify.core.internal.util.json.ProtifyJsonProperty;
 
 public class GitHubRepo {
     @ProtifyJsonProperty("full_name")
@@ -1142,7 +1142,7 @@ A complete pipeline demonstrating multiple providers, transformations, parallel 
 
 ```java
 
-import pipeline.internal.ai.ai.protify.PipelineAIResponse;
+import ai.protify.core.internal.pipeline.PipelineAIResponse;
 
 import java.util.List;
 
