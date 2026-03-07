@@ -14,81 +14,11 @@
  *  limitations under the License.
  */
 
-plugins {
-    id("java-library")
-    id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.2.4"
-}
-
 group = "ai.protify"
 version = "0.1.4"
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
-repositories {
-    mavenCentral()
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-    }
-}
-
-dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.processResources {
-    exclude(".creds")
-}
-
-tasks.test {
-    useJUnitPlatform {
-        excludeTags("smoke")
-    }
-}
-
-tasks.register<Test>("smokeTest") {
-    testClassesDirs = sourceSets["test"].output.classesDirs
-    classpath = sourceSets["test"].runtimeClasspath
-    useJUnitPlatform {
-        includeTags("smoke")
-    }
-}
-
-centralPortal {
-    username = findProperty("sonatypeUsername") as String? ?: System.getenv("SONATYPE_USERNAME")
-    password = findProperty("sonatypePassword") as String? ?: System.getenv("SONATYPE_PASSWORD")
-
-    pom {
-        name = "Protify AI"
-        description = "Protify AI Zero Dependency Java SDK"
-        url = "https://github.com/protifyconsulting/protifyai-java"
-
-        licenses {
-            license {
-                name = "The Apache License, Version 2.0"
-                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-            }
-        }
-
-        developers {
-            developer {
-                id = "protify"
-                name = "Protify Consulting LLC"
-                email = "jkuryla@protify.ai"
-            }
-        }
-
-        scm {
-            connection = "scm:git:git://github.com/protifyconsulting/protifyai-java.git"
-            developerConnection = "scm:git:ssh://github.com/protifyconsulting/protifyai-java.git"
-            url = "https://github.com/protifyconsulting/protifyai-java"
-        }
+subprojects {
+    repositories {
+        mavenCentral()
     }
 }

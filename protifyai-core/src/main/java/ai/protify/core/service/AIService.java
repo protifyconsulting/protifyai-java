@@ -24,4 +24,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AIService {
+    /**
+     * The name of the AIClient to use for this service.
+     * When empty, the default client is used.
+     * In Spring Boot, this corresponds to the client name configured
+     * under {@code protify.ai.clients.<name>}.
+     */
+    String client() default "";
 }

@@ -1694,6 +1694,7 @@ The [`docs/`](docs/) folder contains detailed guides:
 
 | Guide | Description |
 |---|---|
+| [Spring Boot Starter](docs/spring-boot-starter.md) | Auto-configuration for Spring Boot 2.x/3.x/4.x — default and named multi-provider clients, `@AIService` bean scanning, `@Qualifier` injection, and full property reference |
 | [Configuration Guide](docs/configuration-guide.md) | Base properties files, profiles, configuration hierarchy, retry policies, cloud provider setup, API key resolution, and a complete property reference table |
 | [Custom Provider Guide](docs/custom-provider-guide.md) | Step-by-step walkthrough for adding your own AI provider — registration, request/client classes, with full code examples |
 | [AI Agent Guide](docs/AI-AGENT-GUIDE.md) | Compact SDK reference optimized for AI coding agents — see [Using with AI Coding Agents](#using-with-ai-coding-agents) above |

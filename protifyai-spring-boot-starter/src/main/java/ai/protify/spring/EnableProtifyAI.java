@@ -14,7 +14,22 @@
  *  limitations under the License.
  */
 
-rootProject.name = "protifyai"
+package ai.protify.spring;
 
-include("protifyai-core")
-include("protifyai-spring-boot-starter")
+import org.springframework.context.annotation.Import;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Optional annotation to explicitly enable Protify AI auto-configuration.
+ * This is not required when using Spring Boot's auto-configuration,
+ * but can be used for explicit opt-in or in non-Boot Spring applications.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Import(ProtifyAIAutoConfiguration.class)
+public @interface EnableProtifyAI {
+}

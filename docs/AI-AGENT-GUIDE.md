@@ -6,21 +6,33 @@ This document is designed for AI coding agents (Claude, Copilot, Cursor, etc.) t
 
 Protify AI is a zero-dependency, provider-agnostic Java SDK for AI. One API works across 13 providers: OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Together, Fireworks, xAI, Azure OpenAI, Azure AI Foundry, Google Vertex AI, and AWS Bedrock.
 
-**Maven coordinates:**
+**Maven coordinates (core library):**
 ```xml
 <dependency>
     <groupId>ai.protify</groupId>
-    <artifactId>protifyai</artifactId>
+    <artifactId>protifyai-core</artifactId>
     <version>0.1.4</version>
 </dependency>
 ```
 
-**Gradle:**
+**Gradle (core library):**
 ```groovy
-implementation 'ai.protify:protifyai:0.1.4'
+implementation 'ai.protify:protifyai-core:0.1.4'
 ```
 
-**Java 11+ required. Zero external dependencies.**
+**Spring Boot Starter** (includes core automatically):
+```groovy
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.4'
+```
+```xml
+<dependency>
+    <groupId>ai.protify</groupId>
+    <artifactId>protifyai-spring-boot-starter</artifactId>
+    <version>0.1.4</version>
+</dependency>
+```
+
+**Core: Java 11+, zero external dependencies. Spring Boot Starter: Java 17+, Spring Boot 2.x/3.x/4.x.**
 
 ---
 
@@ -42,6 +54,7 @@ All public API classes live under `ai.protify.core`:
 | `ai.protify.core.provider` | `AIProvider`, `AIProviderClient` |
 | `ai.protify.core.mcp` | `MCPClient` |
 | `ai.protify.core.internal.pipeline` | `PipelineAIResponse` (used in pipeline steps and simple response creation) |
+| `ai.protify.spring` | `ProtifyAIAutoConfiguration`, `ProtifyAIProperties`, `AIClientRegistry`, `EnableProtifyAI` (Spring Boot starter only) |
 
 ---
 
@@ -266,8 +279,13 @@ interface SentimentAnalyzer {
     CompletableFuture<String> summarizeAsync(@V("text") String text);
 }
 
+// Without Spring Boot:
 SentimentAnalyzer analyzer = ProtifyAI.create(SentimentAnalyzer.class, client);
 Sentiment result = analyzer.classify("I love this product!");
+
+// With Spring Boot: just @Autowired (no ProtifyAI.create() needed)
+// @AIService also accepts client = "name" for named clients:
+// @AIService(client = "gpt")
 ```
 
 **Supported return types:** `String`, POJOs (JSON deserialization), `List<T>`, enums, primitives (`int`, `boolean`), `AIResponse`, `AIStreamResponse`, `CompletableFuture<T>`, `void`.
@@ -320,6 +338,98 @@ mcp.close();
 // HTTP transport
 MCPClient mcp = MCPClient.http("http://localhost:8080/mcp");
 ```
+
+---
+
+## Spring Boot Starter
+
+The starter auto-configures `AIClient` beans and `@AIService` proxies. See [`docs/spring-boot-starter.md`](spring-boot-starter.md) for full documentation.
+
+### Dependency
+
+```groovy
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.4'
+```
+
+### Minimal application.yml
+
+```yaml
+protify:
+  ai:
+    defaults:
+      provider: anthropic
+      model: claude-sonnet-4-6
+```
+
+### Multi-Provider Setup
+
+```yaml
+protify:
+  ai:
+    defaults:
+      provider: anthropic
+      api-key: ${ANTHROPIC_API_KEY}
+      model: claude-sonnet-4-6
+    clients:
+      gpt:
+        provider: openai
+        api-key: ${OPENAI_API_KEY}
+        model: gpt-4.1
+      gemini:
+        provider: google
+        api-key: ${GEMINI_API_KEY}
+        model: gemini-2.5-flash
+```
+
+### @AIService with Spring (auto-registered as beans)
+
+```java
+import ai.protify.core.service.*;
+
+@AIService  // uses default client
+@Instructions("You are a summarizer.")
+public interface SummaryService {
+    @UserMessage("Summarize: {{text}}")
+    String summarize(@V("text") String text);
+}
+
+@AIService(client = "gpt")  // uses named "gpt" client
+public interface TranslationService {
+    @UserMessage("Translate to {{lang}}: {{text}}")
+    String translate(@V("text") String text, @V("lang") String lang);
+}
+```
+
+### Injecting services and clients
+
+```java
+@RestController
+public class MyController {
+    @Autowired private SummaryService summaryService;          // @AIService proxy
+    @Autowired private TranslationService translationService;  // @AIService proxy
+
+    @Autowired private AIClient defaultClient;                 // default client
+    @Autowired @Qualifier("gpt") private AIClient gptClient;   // named client
+    @Autowired private AIClientRegistry registry;              // all clients
+}
+```
+
+### Key Spring Boot Properties
+
+| Property | Description |
+|---|---|
+| `protify.ai.enabled` | Enable/disable auto-config (default: `true`) |
+| `protify.ai.service-scan-package` | Base package for `@AIService` scanning (default: auto-detected) |
+| `protify.ai.defaults.*` | Default client config (`provider`, `model`, `api-key`, `temperature`, etc.) |
+| `protify.ai.clients.<name>.*` | Named client config (same properties as defaults) |
+| `protify.ai.defaults.retry.*` | Retry policy (`max-retries`, `backoff-strategy`, `delay-millis`, etc.) |
+
+### Spring Boot Mistakes to Avoid
+
+1. **Forgetting `provider` and `model`** -- both are required under `protify.ai.defaults` (or each named client).
+2. **Wrong `client` name in `@AIService(client = "...")`** -- must exactly match a key in `protify.ai.clients`.
+3. **Using `ProtifyAI.create()` manually** -- not needed with the starter; `@AIService` interfaces are auto-registered.
+4. **Calling `ProtifyAI.initialize()` manually** -- the starter does this automatically.
 
 ---
 
@@ -472,8 +582,10 @@ Or set explicitly: `.apiKey("sk-...")` on the client builder.
 
 ## Common Mistakes to Avoid
 
-1. **Forgetting `ProtifyAI.initialize()`** -- must be called once before any other API usage.
+1. **Forgetting `ProtifyAI.initialize()`** -- must be called once before any other API usage. (Not needed with the Spring Boot starter -- it does this automatically.)
 2. **Forgetting `.build()` before `.execute()`** -- the builder chain is: `client.newRequest().addInput(...).build().execute()`.
 3. **Using `.model()` with custom providers** -- use `.provider(myProvider).explicitModelVersion("model-name")` instead.
 4. **Not calling `.toResponse()` on streams** -- `onToken()` registers a listener but doesn't block. Call `toResponse()` to wait for completion.
 5. **Mixing `AIModel` providers** -- each `AIModel` constant is bound to a specific provider. Don't pass an OpenAI model to an Anthropic client.
+6. **Using `ProtifyAI.create()` in Spring Boot** -- not needed; `@AIService` interfaces are auto-registered as beans.
+7. **Wrong `@AIService(client = "...")` name** -- must match a key under `protify.ai.clients` in application.yml.
