@@ -23,6 +23,8 @@ import ai.protify.core.internal.util.Logger;
 import ai.protify.core.internal.util.LoggerFactory;
 import ai.protify.core.resiliency.RetryPolicy;
 
+import java.util.Objects;
+
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -87,6 +89,13 @@ public class AIClientBuilder {
     public AIClientBuilder maxOutputTokens(int maxTokens) {
         LOGGER.debug("Max output tokens set to {}", maxTokens);
         clientProperties.put(AIConfigProperty.MAX_OUTPUT_TOKENS, maxTokens);
+        return this;
+    }
+
+    public AIClientBuilder reasoningEffort(ReasoningEffort effort) {
+        Objects.requireNonNull(effort, "ReasoningEffort cannot be null");
+        LOGGER.debug("Reasoning effort set to {}", effort.getValue());
+        clientProperties.put(AIConfigProperty.REASONING_EFFORT, effort.getValue());
         return this;
     }
 

@@ -1,6 +1,44 @@
 # Protify AI - Java SDK
 
-A lightweight, provider-agnostic Java SDK for building AI-powered applications. Supports 12 providers — OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Together, Fireworks, xAI, Azure OpenAI, Google Vertex AI, and AWS Bedrock — with a unified API for single requests, multi-step pipelines, streaming, parallel execution, and conditional branching.
+A lightweight, provider-agnostic Java SDK for building AI-powered applications. Supports 13 providers — OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Together, Fireworks, xAI, Azure OpenAI, Azure AI Foundry, Google Vertex AI, and AWS Bedrock — with a unified API for single requests, multi-step pipelines, streaming, parallel execution, and conditional branching.
+
+---
+
+## Using with AI Coding Agents
+
+The [`docs/AI-AGENT-GUIDE.md`](docs/AI-AGENT-GUIDE.md) file is a compact reference designed for AI coding agents like Claude Code, Codex, Cursor, and Windsurf. It contains the full API surface with correct package names, copy-paste patterns, and common mistakes — everything an agent needs to write correct Protify AI code on the first attempt without exploring the source tree.
+
+### Claude Code
+
+Add a reference to your project's `CLAUDE.md` file:
+
+```markdown
+When writing code that uses the Protify AI SDK, refer to docs/AI-AGENT-GUIDE.md for the API reference.
+```
+
+Claude Code reads `CLAUDE.md` automatically and will pull in the guide when relevant.
+
+### OpenAI Codex
+
+Add to your `AGENTS.md` or `codex-instructions.md` file:
+
+```markdown
+For the Protify AI Java SDK, see docs/AI-AGENT-GUIDE.md for API patterns, imports, and usage examples.
+```
+
+### Cursor / Windsurf
+
+Add the file as a project-level doc or reference it in your rules file (`.cursorrules` or `.windsurfrules`):
+
+```
+@docs/AI-AGENT-GUIDE.md
+```
+
+### Why This Matters
+
+Without the reference doc, an AI agent has to explore the codebase to figure out the API — reading source files, inferring usage from method signatures, guessing at package names. This is slow, burns context window, and often produces subtly wrong code (incorrect imports, wrong method order, using internal classes). The agent guide gives the agent the right answer immediately, so it writes correct code on the first try.
+
+---
 
 ## Table of Contents
 
@@ -44,7 +82,13 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
   - [Conversations with Tools](#conversations-with-tools)
   - [File Inputs in Conversations](#file-inputs-in-conversations)
   - [Conversation State](#conversation-state)
+- [Reasoning Models](#reasoning-models)
+  - [Reasoning Effort](#reasoning-effort)
+  - [Reasoning Content in Responses](#reasoning-content-in-responses)
+  - [Parameter Validation](#parameter-validation)
+  - [Reasoning in Declarative AI Services](#reasoning-in-declarative-ai-services)
 - [API Key Resolution](#api-key-resolution)
+- [Documentation](#documentation)
 
 ---
 
@@ -104,6 +148,8 @@ An `AIClient` is a reusable, configured entry point for making AI requests. Each
 
 | Constant | Model ID |
 |---|---|
+| `AIModel.GPT_5_4` | `gpt-5.4` |
+| `AIModel.GPT_5_4_PRO` | `gpt-5.4-pro` |
 | `AIModel.GPT_5_2` | `gpt-5.2` |
 | `AIModel.GPT_5_2_PRO` | `gpt-5.2-pro` |
 | `AIModel.GPT_5_2_CODEX` | `gpt-5.2-codex` |
@@ -112,6 +158,7 @@ An `AIClient` is a reusable, configured entry point for making AI requests. Each
 | `AIModel.GPT_5_1_CODEX_MAX` | `gpt-5.1-codex-max` |
 | `AIModel.GPT_5_MINI` | `gpt-5-mini` |
 | `AIModel.GPT_5_NANO` | `gpt-5-nano` |
+| `AIModel.GPT_4_1` | `gpt-4.1` |
 
 **Google Gemini:**
 
@@ -157,15 +204,15 @@ An `AIClient` is a reusable, configured entry point for making AI requests. Each
 | Constant | Model ID |
 |---|---|
 | `AIModel.LLAMA_4_MAVERICK_TOGETHER` | `meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` |
-| `AIModel.LLAMA_4_SCOUT_TOGETHER` | `meta-llama/Llama-4-Scout-17B-16E-Instruct` |
-| `AIModel.QWEN_3_5_397B_TOGETHER` | `Qwen/Qwen3.5-397B-A17B` |
+| `AIModel.LLAMA_3_3_70B_TOGETHER` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
+| `AIModel.DEEPSEEK_V3_1_TOGETHER` | `deepseek-ai/DeepSeek-V3.1` |
 
 **Fireworks:**
 
 | Constant | Model ID |
 |---|---|
-| `AIModel.LLAMA_4_MAVERICK_FIREWORKS` | `accounts/fireworks/models/llama4-maverick-instruct-basic` |
-| `AIModel.LLAMA_4_SCOUT_FIREWORKS` | `accounts/fireworks/models/llama4-scout-instruct-basic` |
+| `AIModel.LLAMA_3_3_70B_FIREWORKS` | `accounts/fireworks/models/llama-v3p3-70b-instruct` |
+| `AIModel.DEEPSEEK_V3_FIREWORKS` | `accounts/fireworks/models/deepseek-v3p1` |
 | `AIModel.QWEN_3_8B_FIREWORKS` | `accounts/fireworks/models/qwen3-8b` |
 
 **xAI:**
@@ -175,7 +222,42 @@ An `AIClient` is a reusable, configured entry point for making AI requests. Each
 | `AIModel.GROK_4_1_FAST` | `grok-4-1-fast-reasoning` |
 | `AIModel.GROK_4_1_FAST_NON_REASONING` | `grok-4-1-fast-non-reasoning` |
 | `AIModel.GROK_4` | `grok-4` |
+| `AIModel.GROK_3_MINI` | `grok-3-mini` |
 | `AIModel.GROK_CODE_FAST` | `grok-code-fast` |
+
+**Azure OpenAI:**
+
+| Constant | Model ID |
+|---|---|
+| `AIModel.GPT_5_2_AZURE` | `gpt-5.2` |
+| `AIModel.GPT_5_1_AZURE` | `gpt-5.1` |
+| `AIModel.GPT_5_MINI_AZURE` | `gpt-5-mini` |
+| `AIModel.GPT_5_NANO_AZURE` | `gpt-5-nano` |
+| `AIModel.GPT_4_1_AZURE` | `gpt-4.1` |
+| `AIModel.GPT_4O_AZURE` | `gpt-4o` |
+| `AIModel.GPT_4O_MINI_AZURE` | `gpt-4o-mini` |
+| `AIModel.O3_AZURE` | `o3` |
+| `AIModel.O3_MINI_AZURE` | `o3-mini` |
+| `AIModel.O4_MINI_AZURE` | `o4-mini` |
+
+**Azure AI Foundry:**
+
+Azure AI Foundry provides a unified API across multiple model vendors. A single `resourceName` and API key gives you access to models from Anthropic, OpenAI, Mistral, Meta, and more — all through the same chat completions interface.
+
+| Constant | Model ID | Vendor |
+|---|---|---|
+| `AIModel.CLAUDE_SONNET_4_6_FOUNDRY` | `claude-sonnet-4-6` | Anthropic |
+| `AIModel.CLAUDE_HAIKU_4_5_FOUNDRY` | `claude-haiku-4-5` | Anthropic |
+| `AIModel.GPT_5_2_FOUNDRY` | `gpt-5.2` | OpenAI |
+| `AIModel.GPT_5_1_FOUNDRY` | `gpt-5.1` | OpenAI |
+| `AIModel.GPT_5_MINI_FOUNDRY` | `gpt-5-mini` | OpenAI |
+| `AIModel.GPT_4O_FOUNDRY` | `gpt-4o` | OpenAI |
+| `AIModel.GPT_4O_MINI_FOUNDRY` | `gpt-4o-mini` | OpenAI |
+| `AIModel.MISTRAL_LARGE_FOUNDRY` | `mistral-large-latest` | Mistral |
+| `AIModel.MISTRAL_SMALL_FOUNDRY` | `mistral-small-latest` | Mistral |
+| `AIModel.LLAMA_3_3_70B_FOUNDRY` | `Meta-Llama-3.3-70B-Instruct` | Meta |
+| `AIModel.LLAMA_4_SCOUT_FOUNDRY` | `Meta-Llama-4-Scout-17B-16E-Instruct` | Meta |
+| `AIModel.LLAMA_4_MAVERICK_FOUNDRY` | `Meta-Llama-4-Maverick-17B-128E-Instruct-FP8` | Meta |
 
 **Google Vertex AI:**
 
@@ -186,11 +268,23 @@ An `AIClient` is a reusable, configured entry point for making AI requests. Each
 
 **AWS Bedrock:**
 
-| Constant | Model ID |
-|---|---|
-| `AIModel.CLAUDE_OPUS_4_6_BEDROCK` | `anthropic.claude-opus-4-6-v1` |
-| `AIModel.CLAUDE_SONNET_4_6_BEDROCK` | `anthropic.claude-sonnet-4-6` |
-| `AIModel.CLAUDE_HAIKU_4_5_BEDROCK` | `anthropic.claude-haiku-4-5-20251001-v1:0` |
+The Bedrock Converse API provides a unified interface across all Bedrock-supported model providers.
+
+| Constant | Model ID | Vendor |
+|---|---|---|
+| `AIModel.CLAUDE_OPUS_4_6_BEDROCK` | `anthropic.claude-opus-4-6-v1` | Anthropic |
+| `AIModel.CLAUDE_SONNET_4_6_BEDROCK` | `anthropic.claude-sonnet-4-6` | Anthropic |
+| `AIModel.CLAUDE_HAIKU_4_5_BEDROCK` | `anthropic.claude-haiku-4-5-20251001-v1:0` | Anthropic |
+| `AIModel.LLAMA_4_MAVERICK_BEDROCK` | `meta.llama4-maverick-17b-instruct-v1:0` | Meta |
+| `AIModel.LLAMA_4_SCOUT_BEDROCK` | `meta.llama4-scout-17b-instruct-v1:0` | Meta |
+| `AIModel.LLAMA_3_3_70B_BEDROCK` | `meta.llama3-3-70b-instruct-v1:0` | Meta |
+| `AIModel.MISTRAL_LARGE_BEDROCK` | `mistral.mistral-large-2411-v1:0` | Mistral |
+| `AIModel.MISTRAL_SMALL_BEDROCK` | `mistral.mistral-small-2503-v1:0` | Mistral |
+| `AIModel.AMAZON_NOVA_PRO_BEDROCK` | `amazon.nova-pro-v1:0` | Amazon |
+| `AIModel.AMAZON_NOVA_LITE_BEDROCK` | `amazon.nova-lite-v1:0` | Amazon |
+| `AIModel.AMAZON_NOVA_MICRO_BEDROCK` | `amazon.nova-micro-v1:0` | Amazon |
+| `AIModel.COHERE_COMMAND_R_PLUS_BEDROCK` | `cohere.command-r-plus-v1:0` | Cohere |
+| `AIModel.COHERE_COMMAND_R_BEDROCK` | `cohere.command-r-v1:0` | Cohere |
 
 All built-in models use auto-updating aliases where available. For pinned versions, use `AIModel.custom()`.
 
@@ -206,15 +300,52 @@ Cloud providers require additional configuration beyond an API key.
 
 **Azure OpenAI:**
 
+Azure OpenAI Service requires a resource name and deployment name. Each deployment maps to a specific model in your Azure portal.
+
 ```java
+// Using a built-in Azure OpenAI model
+AIClient client = AIClient.builder()
+        .model(AIModel.GPT_4O_AZURE)
+        .resourceName("my-azure-resource")
+        .deploymentName("my-gpt4o-deployment")
+        .apiKey("my-azure-api-key")  // or AZURE_OPENAI_API_KEY env var
+        .build();
+
+// Or using explicitModelVersion for custom deployments
 AIClient client = AIClient.builder()
         .provider(ProtifyAIProvider.AZURE_OPEN_AI)
         .explicitModelVersion("gpt-4o")
         .resourceName("my-azure-resource")
         .deploymentName("my-gpt4o-deployment")
-        .apiKey("my-azure-api-key")  // or AZURE_OPENAI_API_KEY env var
         .build();
 ```
+
+**Azure AI Foundry:**
+
+Azure AI Foundry provides a unified chat completions API across multiple model vendors (Anthropic, OpenAI, Mistral, Meta, and more). Unlike Azure OpenAI, it does not require a deployment name — models are accessed by name through a single endpoint.
+
+```java
+// Claude on Azure AI Foundry
+AIClient client = AIClient.builder()
+        .model(AIModel.CLAUDE_SONNET_4_6_FOUNDRY)
+        .resourceName("my-foundry-resource")
+        .apiKey("my-foundry-api-key")  // or AZURE_AI_FOUNDRY_API_KEY env var
+        .build();
+
+// GPT on Azure AI Foundry
+AIClient client = AIClient.builder()
+        .model(AIModel.GPT_4O_FOUNDRY)
+        .resourceName("my-foundry-resource")
+        .build();
+
+// Llama on Azure AI Foundry
+AIClient client = AIClient.builder()
+        .model(AIModel.LLAMA_4_SCOUT_FOUNDRY)
+        .resourceName("my-foundry-resource")
+        .build();
+```
+
+The API version defaults to `2024-12-01-preview`. Override it with `.apiVersion()` if needed.
 
 **Google Vertex AI:**
 
@@ -232,7 +363,7 @@ AIClient client = AIClient.builder()
 ```java
 AIClient client = AIClient.builder()
         .model(AIModel.CLAUDE_SONNET_4_6_BEDROCK)
-        .region("us-east-1")
+        .region("us-east-1")  // or set AWS_REGION env var
         // Uses AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY env vars
         // Or set explicitly:
         // .awsAccessKeyId("AKIA...")
@@ -276,6 +407,7 @@ AIClient client = AIClient.builder()
         .instructions("You are a helpful assistant. Respond concisely.")
         .temperature(0.7)
         .maxOutputTokens(500)
+        .reasoningEffort(ReasoningEffort.MEDIUM)  // enable extended thinking
         .retryPolicy(RetryPolicy.builder().maxRetries(3).build())
         .apiKey("sk-...")                        // explicit API key (optional)
         .logRequests(true)                       // log outgoing request JSON
@@ -354,6 +486,7 @@ AIResponse response = client.newRequest()
         .instructions("You are a novelist.")     // overrides client instructions
         .temperature(0.9)                         // overrides client temperature
         .maxOutputTokens(2000)                    // overrides client maxOutputTokens
+        .reasoningEffort(ReasoningEffort.HIGH)    // overrides client reasoning effort
         .retryPolicy(RetryPolicy.builder().maxRetries(5).build())
         .build()
         .execute();
@@ -372,6 +505,7 @@ AIResponse response = client.newRequest()
         .execute();
 
 String text              = response.text();
+String reasoning         = response.getReasoningContent();  // chain-of-thought (or null)
 String modelName         = response.getModelName();
 long inputTokens         = response.getInputTokens();
 long outputTokens        = response.getOutputTokens();
@@ -556,6 +690,7 @@ String translated = assistant.translate("Hello world", "French");
 | `@V` | Parameter | Yes | Binds a method parameter to a template variable |
 | `@Temperature` | Method | No | Per-method temperature override |
 | `@MaxTokens` | Method | No | Per-method max output tokens override |
+| `@Reasoning` | Method | No | Per-method reasoning effort (`ReasoningEffort.LOW`, `MEDIUM`, `HIGH`) |
 
 ### Return Types
 
@@ -1131,8 +1266,9 @@ If both an environment variable and explicit key are set, the environment variab
 | Fireworks | `FIREWORKS_API_KEY` |
 | xAI | `XAI_API_KEY` |
 | Azure OpenAI | `AZURE_OPENAI_API_KEY` |
+| Azure AI Foundry | `AZURE_AI_FOUNDRY_API_KEY` |
 | Vertex AI | `VERTEX_AI_ACCESS_TOKEN` |
-| AWS Bedrock | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` (+ optional `AWS_SESSION_TOKEN`) |
+| AWS Bedrock | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` (+ optional `AWS_SESSION_TOKEN`) + `AWS_REGION` |
 
 ---
 
@@ -1379,6 +1515,139 @@ conversation.clear();
 
 ---
 
+## Reasoning Models
+
+Many modern LLMs support extended thinking — the model reasons through a problem before responding. Protify AI provides a unified `ReasoningEffort` API that works across providers, automatic parameter validation for reasoning models, and access to the model's reasoning output.
+
+### Reasoning Effort
+
+Use `reasoningEffort()` to enable extended thinking on any builder — client, request, conversation, or pipeline:
+
+```java
+import ai.protify.core.ReasoningEffort;
+
+// Client-level default — all requests use extended thinking
+AIClient client = AIClient.builder()
+        .model(AIModel.CLAUDE_OPUS_4_6)
+        .reasoningEffort(ReasoningEffort.HIGH)
+        .maxOutputTokens(16000)
+        .build();
+
+// Per-request override
+AIResponse response = client.newRequest()
+        .addInput("Prove that the square root of 2 is irrational.")
+        .reasoningEffort(ReasoningEffort.MEDIUM)
+        .build()
+        .execute();
+
+// In a conversation
+AIConversation conversation = client.newConversation()
+        .instructions("You are a math tutor")
+        .reasoningEffort(ReasoningEffort.HIGH)
+        .build();
+
+// In a pipeline
+AIPipeline pipeline = AIPipeline.builder()
+        .reasoningEffort(ReasoningEffort.LOW)
+        .withInitialStep(/* ... */)
+        .build();
+```
+
+`ReasoningEffort` has three levels: `LOW`, `MEDIUM`, and `HIGH`. Each level maps to provider-specific parameters:
+
+| Provider | How it's sent |
+|---|---|
+| Anthropic | `thinking.type: "enabled"` with `budget_tokens` (low=1024, medium=5000, high=16000) |
+| OpenAI | `reasoning.effort` set to `"low"`, `"medium"`, or `"high"` |
+| Gemini | `generationConfig.thinkingConfig.thinkingBudget` (low=1024, medium=8192, high=24576) |
+| AWS Bedrock | `additionalModelRequestFields.thinking` with `budget_tokens` |
+| DeepSeek | Not needed — `deepseek-reasoner` always reasons |
+
+### Reasoning Content in Responses
+
+When a model uses extended thinking, the reasoning output is available via `getReasoningContent()`:
+
+```java
+AIClient client = AIClient.builder()
+        .model(AIModel.CLAUDE_OPUS_4_6)
+        .reasoningEffort(ReasoningEffort.HIGH)
+        .maxOutputTokens(16000)
+        .build();
+
+AIResponse response = client.newRequest()
+        .addInput("What is the probability of drawing a flush in poker?")
+        .build()
+        .execute();
+
+String answer    = response.text();                // the final answer
+String reasoning = response.getReasoningContent(); // the model's chain-of-thought (or null)
+
+if (reasoning != null) {
+    System.out.println("Reasoning: " + reasoning);
+}
+System.out.println("Answer: " + answer);
+```
+
+`getReasoningContent()` returns `null` when the model did not produce reasoning output (e.g., reasoning was not enabled, or the provider doesn't surface it).
+
+The reasoning content is extracted from provider-specific response formats:
+
+| Provider | Source |
+|---|---|
+| Anthropic | Content blocks with `type: "thinking"` |
+| OpenAI | Output items with `type: "reasoning"` and `summary` |
+| Gemini | Parts with `thought: true` |
+| DeepSeek / xAI | `reasoning_content` field on the response message |
+| AWS Bedrock | Content blocks with `reasoning.text` |
+
+### Parameter Validation
+
+Reasoning models typically don't support `temperature`, `topP`, or `topK`. Protify AI automatically detects these conflicts and excludes the unsupported parameters with a warning log — no API errors, no code changes needed:
+
+```java
+// This works without errors, even though DeepSeek Reasoner doesn't support temperature
+AIClient client = AIClient.builder()
+        .model(AIModel.DEEPSEEK_REASONER)
+        .temperature(0.7)  // automatically excluded with a warning
+        .build();
+```
+
+Parameters are automatically suppressed for:
+
+| Model | Suppressed Parameters |
+|---|---|
+| `deepseek-reasoner` | `temperature`, `topP` |
+| OpenAI GPT-5 family | `temperature` |
+| xAI Grok reasoning models | `temperature`, `topP` |
+| Any model with `reasoningEffort` set (Anthropic, Bedrock) | `temperature`, `topP`, `topK` |
+
+### Reasoning in Declarative AI Services
+
+Use the `@Reasoning` annotation to enable extended thinking on AI service methods:
+
+```java
+import ai.protify.core.service.*;
+import ai.protify.core.ReasoningEffort;
+
+@AIService
+interface MathTutor {
+
+    @Reasoning(ReasoningEffort.HIGH)
+    @MaxTokens(16000)
+    @UserMessage("Solve this step by step: {{problem}}")
+    String solve(@V("problem") String problem);
+
+    @Reasoning(ReasoningEffort.LOW)
+    @UserMessage("What is {{a}} + {{b}}?")
+    int add(@V("a") int a, @V("b") int b);
+}
+
+MathTutor tutor = ProtifyAI.create(MathTutor.class, client);
+String proof = tutor.solve("Prove that there are infinitely many primes");
+```
+
+---
+
 ## MCP Client
 
 Connect to [Model Context Protocol](https://modelcontextprotocol.io) servers to dynamically discover and use tools.
@@ -1416,3 +1685,15 @@ try (MCPClient mcp = MCPClient.stdio("npx", "-y", "@modelcontextprotocol/server-
     // ...
 }
 ```
+
+---
+
+## Documentation
+
+The [`docs/`](docs/) folder contains detailed guides:
+
+| Guide | Description |
+|---|---|
+| [Configuration Guide](docs/configuration-guide.md) | Base properties files, profiles, configuration hierarchy, retry policies, cloud provider setup, API key resolution, and a complete property reference table |
+| [Custom Provider Guide](docs/custom-provider-guide.md) | Step-by-step walkthrough for adding your own AI provider — registration, request/client classes, with full code examples |
+| [AI Agent Guide](docs/AI-AGENT-GUIDE.md) | Compact SDK reference optimized for AI coding agents — see [Using with AI Coding Agents](#using-with-ai-coding-agents) above |

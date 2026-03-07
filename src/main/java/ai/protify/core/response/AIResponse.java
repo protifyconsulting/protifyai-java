@@ -62,6 +62,10 @@ public interface AIResponse {
         return Collections.emptyList();
     }
 
+    default String getReasoningContent() {
+        return null;
+    }
+
     default String getStopReason() {
         return null;
     }

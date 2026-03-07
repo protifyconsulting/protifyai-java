@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("smoke")
 public class AllModelsSmokeTest {
 
-    private static final long API_CALL_DELAY_MS = 1000;
+    private static final long API_CALL_DELAY_MS = 500;
 
     @BeforeAll
     static void initialize() {
@@ -44,7 +44,39 @@ public class AllModelsSmokeTest {
             "GEMINI_2_5_FLASH_VERTEX",
             "CLAUDE_OPUS_4_6_BEDROCK",
             "CLAUDE_SONNET_4_6_BEDROCK",
-            "CLAUDE_HAIKU_4_5_BEDROCK"
+            "CLAUDE_HAIKU_4_5_BEDROCK",
+            "LLAMA_4_MAVERICK_BEDROCK",
+            "LLAMA_4_SCOUT_BEDROCK",
+            "LLAMA_3_3_70B_BEDROCK",
+            "MISTRAL_LARGE_BEDROCK",
+            "MISTRAL_SMALL_BEDROCK",
+            "AMAZON_NOVA_PRO_BEDROCK",
+            "AMAZON_NOVA_LITE_BEDROCK",
+            "AMAZON_NOVA_MICRO_BEDROCK",
+            "COHERE_COMMAND_R_PLUS_BEDROCK",
+            "COHERE_COMMAND_R_BEDROCK",
+            "GPT_5_2_AZURE",
+            "GPT_5_1_AZURE",
+            "GPT_5_MINI_AZURE",
+            "GPT_5_NANO_AZURE",
+            "GPT_4_1_AZURE",
+            "GPT_4O_AZURE",
+            "GPT_4O_MINI_AZURE",
+            "O3_AZURE",
+            "O3_MINI_AZURE",
+            "O4_MINI_AZURE",
+            "CLAUDE_SONNET_4_6_FOUNDRY",
+            "CLAUDE_HAIKU_4_5_FOUNDRY",
+            "GPT_5_2_FOUNDRY",
+            "GPT_5_1_FOUNDRY",
+            "GPT_5_MINI_FOUNDRY",
+            "GPT_4O_FOUNDRY",
+            "GPT_4O_MINI_FOUNDRY",
+            "MISTRAL_LARGE_FOUNDRY",
+            "MISTRAL_SMALL_FOUNDRY",
+            "LLAMA_3_3_70B_FOUNDRY",
+            "LLAMA_4_SCOUT_FOUNDRY",
+            "LLAMA_4_MAVERICK_FOUNDRY"
     })
     void smokeTest(SupportedModel model) {
         AIClient client = AIClient.builder()
@@ -53,7 +85,7 @@ public class AllModelsSmokeTest {
 
         AIResponse response = client.newRequest()
                 .addInput("Say hello.")
-                .maxOutputTokens(100)
+                .maxOutputTokens(1024)
                 .build()
                 .execute();
 

@@ -37,6 +37,7 @@ public final class AnthropicRequestBody {
 
     private boolean stream;
     private String system;
+    private AnthropicThinking thinking;
     private List<AnthropicMessage> messages;
     private List<AnthropicTool> tools;
 
@@ -97,6 +98,14 @@ public final class AnthropicRequestBody {
 
     public void setSystem(String system) {
         this.system = system;
+    }
+
+    public AnthropicThinking getThinking() {
+        return thinking;
+    }
+
+    public void setThinking(AnthropicThinking thinking) {
+        this.thinking = thinking;
     }
 
     public List<AnthropicMessage> getMessages() {

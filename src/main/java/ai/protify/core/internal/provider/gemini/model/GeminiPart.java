@@ -23,6 +23,7 @@ import java.util.Map;
 public final class GeminiPart {
 
     private String text;
+    private Boolean thought;
 
     @ProtifyJsonProperty("inlineData")
     private GeminiInlineData inlineData;
@@ -62,6 +63,14 @@ public final class GeminiPart {
 
     public String getText() {
         return text;
+    }
+
+    public Boolean getThought() {
+        return thought;
+    }
+
+    public void setThought(Boolean thought) {
+        this.thought = thought;
     }
 
     @ProtifyJsonProperty("inlineData")

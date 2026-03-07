@@ -14,17 +14,28 @@
  *  limitations under the License.
  */
 
-package ai.protify.core.internal.mcp;
+package ai.protify.core.internal.provider.openai.model;
 
-public interface MCPTransport {
+public final class OpenAIReasoning {
 
-    void open();
+    private String effort;
 
-    String sendRequest(String jsonRpc);
+    public OpenAIReasoning() {
+    }
 
-    void sendNotification(String jsonRpc);
+    public OpenAIReasoning(String effort) {
+        this.effort = effort;
+    }
 
-    boolean isOpen();
+    public static OpenAIReasoning of(String effort) {
+        return new OpenAIReasoning(effort);
+    }
 
-    void close();
+    public String getEffort() {
+        return effort;
+    }
+
+    public void setEffort(String effort) {
+        this.effort = effort;
+    }
 }

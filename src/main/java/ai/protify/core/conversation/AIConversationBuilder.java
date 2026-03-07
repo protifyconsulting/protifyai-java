@@ -17,6 +17,7 @@
 package ai.protify.core.conversation;
 
 import ai.protify.core.AIClient;
+import ai.protify.core.ReasoningEffort;
 import ai.protify.core.internal.config.AIConfigProperty;
 import ai.protify.core.internal.conversation.ProtifyAIConversation;
 import ai.protify.core.message.AIMessage;
@@ -72,6 +73,12 @@ public class AIConversationBuilder {
 
     public AIConversationBuilder topK(int topK) {
         this.properties.put(AIConfigProperty.TOP_K, topK);
+        return this;
+    }
+
+    public AIConversationBuilder reasoningEffort(ReasoningEffort effort) {
+        Objects.requireNonNull(effort, "ReasoningEffort cannot be null");
+        this.properties.put(AIConfigProperty.REASONING_EFFORT, effort.getValue());
         return this;
     }
 

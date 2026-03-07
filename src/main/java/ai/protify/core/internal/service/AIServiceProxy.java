@@ -17,6 +17,7 @@
 package ai.protify.core.internal.service;
 
 import ai.protify.core.AIClient;
+import ai.protify.core.ReasoningEffort;
 import ai.protify.core.request.AIRequestBuilder;
 import ai.protify.core.response.AIResponse;
 import ai.protify.core.response.AIStreamResponse;
@@ -106,6 +107,9 @@ public final class AIServiceProxy implements InvocationHandler {
         if (metadata.maxTokens != null) {
             builder.maxOutputTokens(metadata.maxTokens);
         }
+        if (metadata.reasoningEffort != null) {
+            builder.reasoningEffort(metadata.reasoningEffort);
+        }
         return builder.build().execute();
     }
 
@@ -119,6 +123,9 @@ public final class AIServiceProxy implements InvocationHandler {
         }
         if (metadata.maxTokens != null) {
             builder.maxOutputTokens(metadata.maxTokens);
+        }
+        if (metadata.reasoningEffort != null) {
+            builder.reasoningEffort(metadata.reasoningEffort);
         }
         return builder.build().executeStream();
     }
@@ -179,10 +186,13 @@ public final class AIServiceProxy implements InvocationHandler {
         MaxTokens mt = method.getAnnotation(MaxTokens.class);
         Integer maxTokens = mt != null ? mt.value() : null;
 
+        Reasoning reasoning = method.getAnnotation(Reasoning.class);
+        ReasoningEffort reasoningEffort = reasoning != null ? reasoning.value() : null;
+
         String[] paramNames = resolveParamNames(method);
         ReturnTypeMapper.ReturnTypeInfo returnTypeInfo = ReturnTypeMapper.analyze(method);
 
-        return new MethodMetadata(template, instructions, paramNames, returnTypeInfo, temperature, maxTokens);
+        return new MethodMetadata(template, instructions, paramNames, returnTypeInfo, temperature, maxTokens, reasoningEffort);
     }
 
     private static String[] resolveParamNames(Method method) {
@@ -217,15 +227,18 @@ public final class AIServiceProxy implements InvocationHandler {
         final ReturnTypeMapper.ReturnTypeInfo returnTypeInfo;
         final Double temperature;
         final Integer maxTokens;
+        final ReasoningEffort reasoningEffort;
 
         MethodMetadata(String template, String instructions, String[] paramNames,
-                       ReturnTypeMapper.ReturnTypeInfo returnTypeInfo, Double temperature, Integer maxTokens) {
+                       ReturnTypeMapper.ReturnTypeInfo returnTypeInfo, Double temperature, Integer maxTokens,
+                       ReasoningEffort reasoningEffort) {
             this.template = template;
             this.instructions = instructions;
             this.paramNames = paramNames;
             this.returnTypeInfo = returnTypeInfo;
             this.temperature = temperature;
             this.maxTokens = maxTokens;
+            this.reasoningEffort = reasoningEffort;
         }
     }
 }

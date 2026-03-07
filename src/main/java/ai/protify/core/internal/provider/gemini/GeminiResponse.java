@@ -78,7 +78,7 @@ public class GeminiResponse extends ProtifyAIResponse {
         if (content != null && content.getParts() != null) {
             StringBuilder sb = new StringBuilder();
             for (GeminiPart part : content.getParts()) {
-                if (part.getText() != null) {
+                if (part.getText() != null && !Boolean.TRUE.equals(part.getThought())) {
                     sb.append(part.getText());
                 }
             }
@@ -87,6 +87,24 @@ public class GeminiResponse extends ProtifyAIResponse {
             }
         }
         return "";
+    }
+
+    @Override
+    public String getReasoningContent() {
+        GeminiContent content = getFirstCandidateContent();
+        if (content != null && content.getParts() != null) {
+            StringBuilder sb = new StringBuilder();
+            for (GeminiPart part : content.getParts()) {
+                if (Boolean.TRUE.equals(part.getThought()) && part.getText() != null) {
+                    if (sb.length() > 0) sb.append("\n");
+                    sb.append(part.getText());
+                }
+            }
+            if (sb.length() > 0) {
+                return sb.toString();
+            }
+        }
+        return null;
     }
 
     @Override

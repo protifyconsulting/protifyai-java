@@ -96,6 +96,27 @@ public class OpenAIResponse extends ProtifyAIResponse {
     }
 
     @Override
+    public String getReasoningContent() {
+        if (body.getOutput() != null) {
+            StringBuilder sb = new StringBuilder();
+            for (OpenAIOutputItem item : body.getOutput()) {
+                if ("reasoning".equals(item.getType()) && item.getSummary() != null) {
+                    for (OpenAIOutputContent block : item.getSummary()) {
+                        if (block.getText() != null) {
+                            if (sb.length() > 0) sb.append("\n");
+                            sb.append(block.getText());
+                        }
+                    }
+                }
+            }
+            if (sb.length() > 0) {
+                return sb.toString();
+            }
+        }
+        return null;
+    }
+
+    @Override
     public String getStopReason() {
         return body.getStatus();
     }

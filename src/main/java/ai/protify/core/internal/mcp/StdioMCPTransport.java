@@ -53,14 +53,32 @@ public class StdioMCPTransport implements MCPTransport {
             writer.newLine();
             writer.flush();
 
-            // Read response line
-            String line = reader.readLine();
-            if (line == null) {
-                throw new IllegalStateException("MCP server closed connection unexpectedly");
+            // Read lines, skipping server-initiated notifications (no "id" field)
+            // until we get the actual response to our request
+            while (true) {
+                String line = reader.readLine();
+                if (line == null) {
+                    throw new IllegalStateException("MCP server closed connection unexpectedly");
+                }
+                // Server notifications contain "method" but no "id" at the top level.
+                // Responses always contain "id". Skip lines that look like notifications.
+                if (line.contains("\"id\"")) {
+                    return line;
+                }
             }
-            return line;
         } catch (IOException e) {
             throw new IllegalStateException("Failed to communicate with MCP server", e);
+        }
+    }
+
+    @Override
+    public void sendNotification(String jsonRpc) {
+        try {
+            writer.write(jsonRpc);
+            writer.newLine();
+            writer.flush();
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to send notification to MCP server", e);
         }
     }
 

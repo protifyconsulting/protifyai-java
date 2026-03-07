@@ -14,25 +14,9 @@
  *  limitations under the License.
  */
 
-package ai.protify.core.internal.provider.xai;
+package ai.protify.core.internal.provider.azurefoundry;
 
-import ai.protify.core.internal.config.AIConfigProperty;
 import ai.protify.core.internal.provider.chatcompletions.ChatCompletionsRequest;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
-
-public final class XAIRequest extends ChatCompletionsRequest {
-
-    private static final Set<AIConfigProperty> REASONING_UNSUPPORTED = Collections.unmodifiableSet(
-            EnumSet.of(AIConfigProperty.TEMPERATURE, AIConfigProperty.TOP_P));
-
-    @Override
-    protected Set<AIConfigProperty> getUnsupportedParametersForModel(String model) {
-        if (model != null && model.contains("reasoning")) {
-            return REASONING_UNSUPPORTED;
-        }
-        return Collections.emptySet();
-    }
+public final class AzureAIFoundryRequest extends ChatCompletionsRequest {
 }

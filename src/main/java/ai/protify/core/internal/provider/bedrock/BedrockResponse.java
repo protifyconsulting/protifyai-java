@@ -87,6 +87,24 @@ public class BedrockResponse extends ProtifyAIResponse {
     }
 
     @Override
+    public String getReasoningContent() {
+        BedrockMessage message = getOutputMessage();
+        if (message != null && message.getContent() != null) {
+            StringBuilder sb = new StringBuilder();
+            for (BedrockContentBlock block : message.getContent()) {
+                if (block.getReasoning() != null && block.getReasoning().getText() != null) {
+                    if (sb.length() > 0) sb.append("\n");
+                    sb.append(block.getReasoning().getText());
+                }
+            }
+            if (sb.length() > 0) {
+                return sb.toString();
+            }
+        }
+        return null;
+    }
+
+    @Override
     public String getStopReason() {
         return body.getStopReason();
     }

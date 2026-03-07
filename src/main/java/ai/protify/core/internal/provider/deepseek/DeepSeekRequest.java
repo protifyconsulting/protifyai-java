@@ -16,7 +16,23 @@
 
 package ai.protify.core.internal.provider.deepseek;
 
+import ai.protify.core.internal.config.AIConfigProperty;
 import ai.protify.core.internal.provider.chatcompletions.ChatCompletionsRequest;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+
 public final class DeepSeekRequest extends ChatCompletionsRequest {
+
+    private static final Set<AIConfigProperty> REASONER_UNSUPPORTED = Collections.unmodifiableSet(
+            EnumSet.of(AIConfigProperty.TEMPERATURE, AIConfigProperty.TOP_P));
+
+    @Override
+    protected Set<AIConfigProperty> getUnsupportedParametersForModel(String model) {
+        if ("deepseek-reasoner".equals(model)) {
+            return REASONER_UNSUPPORTED;
+        }
+        return Collections.emptySet();
+    }
 }

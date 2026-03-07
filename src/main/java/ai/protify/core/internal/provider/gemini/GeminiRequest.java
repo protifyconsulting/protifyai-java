@@ -21,6 +21,7 @@ import ai.protify.core.internal.provider.gemini.model.GeminiContent;
 import ai.protify.core.internal.provider.gemini.model.GeminiGenerationConfig;
 import ai.protify.core.internal.provider.gemini.model.GeminiPart;
 import ai.protify.core.internal.provider.gemini.model.GeminiRequestBody;
+import ai.protify.core.internal.provider.gemini.model.GeminiThinkingConfig;
 import ai.protify.core.internal.provider.gemini.model.GeminiTool;
 import ai.protify.core.internal.util.json.JsonBuilder;
 import ai.protify.core.internal.util.json.ProtifyJson;
@@ -68,6 +69,7 @@ public final class GeminiRequest extends ProtifyAIProviderRequest {
         Integer topK = super.getConfiguration().getProperty(AIConfigProperty.TOP_K);
         Integer maxTokens = super.getConfiguration().getProperty(AIConfigProperty.MAX_OUTPUT_TOKENS);
         String instructions = super.getConfiguration().getProperty(AIConfigProperty.INSTRUCTIONS);
+        String reasoningEffort = super.getConfiguration().getProperty(AIConfigProperty.REASONING_EFFORT);
 
         GeminiRequestBody body = new GeminiRequestBody();
 
@@ -78,12 +80,15 @@ public final class GeminiRequest extends ProtifyAIProviderRequest {
         }
 
         // Generation config
-        if (temperature != null || topP != null || topK != null || maxTokens != null) {
+        if (temperature != null || topP != null || topK != null || maxTokens != null || reasoningEffort != null) {
             GeminiGenerationConfig config = new GeminiGenerationConfig();
             config.setTemperature(temperature);
             config.setTopP(topP);
             config.setTopK(topK);
             config.setMaxOutputTokens(maxTokens);
+            if (reasoningEffort != null) {
+                config.setThinkingConfig(new GeminiThinkingConfig(mapReasoningEffortToThinkingBudget(reasoningEffort)));
+            }
             body.setGenerationConfig(config);
         }
 
@@ -332,5 +337,18 @@ public final class GeminiRequest extends ProtifyAIProviderRequest {
             return dataUrl.substring(dataUrl.indexOf(',') + 1);
         }
         return dataUrl;
+    }
+
+    private static int mapReasoningEffortToThinkingBudget(String effort) {
+        switch (effort) {
+            case "low":
+                return 1024;
+            case "medium":
+                return 8192;
+            case "high":
+                return 24576;
+            default:
+                return 8192;
+        }
     }
 }

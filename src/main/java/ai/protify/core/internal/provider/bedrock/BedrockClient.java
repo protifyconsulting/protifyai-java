@@ -43,26 +43,30 @@ public class BedrockClient extends ProtifyAIProviderClient<BedrockRequest> {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    private String getEndpointUrl() {
+    private String resolveRegion() {
         String region = super.getConfiguration().getProperty(AIConfigProperty.REGION);
         if (region == null || region.isEmpty()) {
-            throw new IllegalStateException(
-                    "AWS Bedrock requires a region. Set it via .region() on the builder.");
+            region = System.getenv("AWS_REGION");
         }
+        if (region == null || region.isEmpty()) {
+            throw new IllegalStateException(
+                    "AWS Bedrock requires a region. Set it via .region() on the builder "
+                    + "or the AWS_REGION environment variable.");
+        }
+        return region;
+    }
+
+    private String getEndpointUrl(String region) {
         return "https://bedrock-runtime." + region + ".amazonaws.com/model/"
                 + super.getModelName() + "/converse";
     }
 
     @Override
     public AIResponse execute(BedrockRequest request) {
-        String region = super.getConfiguration().getProperty(AIConfigProperty.REGION);
-        if (region == null || region.isEmpty()) {
-            throw new IllegalStateException(
-                    "AWS Bedrock requires a region. Set it via .region() on the builder.");
-        }
+        String region = resolveRegion();
 
         AwsCredentials credentials = AwsCredentialResolver.resolve(super.getConfiguration());
-        String endpointUrl = getEndpointUrl();
+        String endpointUrl = getEndpointUrl(region);
         URI uri = URI.create(endpointUrl);
         String jsonBody = request.toJson();
 

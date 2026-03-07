@@ -60,6 +60,7 @@ public enum AIConfigProperty {
     TEMPERATURE("clientDefaults.temperature", false, null, Double.class),
     TOP_P("clientDefaults.topP", false, null, Double.class),
     TOP_K("clientDefaults.topK", false, null, Integer.class),
+    REASONING_EFFORT("clientDefaults.reasoningEffort", false, null, String.class),
     INSTRUCTIONS("clientDefaults.instructions", false, null, String.class),
     PRETTY_PRINT_JSON("logging.json.prettyPrint", false, false, Boolean.class),
     LOG_REQUESTS("logging.logRequests", false, false, Boolean.class),

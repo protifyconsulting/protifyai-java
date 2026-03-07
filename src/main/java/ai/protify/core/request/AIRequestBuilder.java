@@ -17,6 +17,7 @@
 package ai.protify.core.request;
 
 import ai.protify.core.AIClient;
+import ai.protify.core.ReasoningEffort;
 import ai.protify.core.internal.config.AIConfigProperty;
 import ai.protify.core.internal.request.ProtifyAIRequest;
 import ai.protify.core.resiliency.RetryPolicy;
@@ -135,6 +136,12 @@ public class AIRequestBuilder {
 
     public AIRequestBuilder maxOutputTokens(int maxOutputTokens) {
         this.properties.put(AIConfigProperty.MAX_OUTPUT_TOKENS, maxOutputTokens);
+        return this;
+    }
+
+    public AIRequestBuilder reasoningEffort(ReasoningEffort effort) {
+        Objects.requireNonNull(effort, "ReasoningEffort cannot be null");
+        this.properties.put(AIConfigProperty.REASONING_EFFORT, effort.getValue());
         return this;
     }
 

@@ -14,17 +14,17 @@
  *  limitations under the License.
  */
 
-package ai.protify.core.internal.mcp;
+package ai.protify.core.service;
 
-public interface MCPTransport {
+import ai.protify.core.ReasoningEffort;
 
-    void open();
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    String sendRequest(String jsonRpc);
-
-    void sendNotification(String jsonRpc);
-
-    boolean isOpen();
-
-    void close();
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Reasoning {
+    ReasoningEffort value();
 }

@@ -62,6 +62,12 @@ public class HttpSseMCPTransport implements MCPTransport {
     }
 
     @Override
+    public void sendNotification(String jsonRpc) {
+        // For HTTP transport, notifications are the same as requests but we ignore the response
+        sendRequest(jsonRpc);
+    }
+
+    @Override
     public boolean isOpen() {
         return open;
     }

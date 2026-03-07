@@ -31,6 +31,7 @@ public final class OpenAIRequestBody {
     @ProtifyJsonProperty("max_output_tokens")
     private Integer maxOutputTokens;
 
+    private OpenAIReasoning reasoning;
     private String instructions;
     private boolean stream;
     private List<Object> input;
@@ -68,6 +69,14 @@ public final class OpenAIRequestBody {
 
     public void setMaxOutputTokens(Integer maxOutputTokens) {
         this.maxOutputTokens = maxOutputTokens;
+    }
+
+    public OpenAIReasoning getReasoning() {
+        return reasoning;
+    }
+
+    public void setReasoning(OpenAIReasoning reasoning) {
+        this.reasoning = reasoning;
     }
 
     public String getInstructions() {

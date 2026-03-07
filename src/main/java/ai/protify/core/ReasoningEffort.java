@@ -14,17 +14,21 @@
  *  limitations under the License.
  */
 
-package ai.protify.core.internal.mcp;
+package ai.protify.core;
 
-public interface MCPTransport {
+public enum ReasoningEffort {
 
-    void open();
+    LOW("low"),
+    MEDIUM("medium"),
+    HIGH("high");
 
-    String sendRequest(String jsonRpc);
+    private final String value;
 
-    void sendNotification(String jsonRpc);
+    ReasoningEffort(String value) {
+        this.value = value;
+    }
 
-    boolean isOpen();
-
-    void close();
+    public String getValue() {
+        return value;
+    }
 }

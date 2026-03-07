@@ -31,6 +31,9 @@ public final class GeminiGenerationConfig {
     @ProtifyJsonProperty("maxOutputTokens")
     private Integer maxOutputTokens;
 
+    @ProtifyJsonProperty("thinkingConfig")
+    private GeminiThinkingConfig thinkingConfig;
+
     public Double getTemperature() {
         return temperature;
     }
@@ -64,5 +67,14 @@ public final class GeminiGenerationConfig {
 
     public void setMaxOutputTokens(Integer maxOutputTokens) {
         this.maxOutputTokens = maxOutputTokens;
+    }
+
+    @ProtifyJsonProperty("thinkingConfig")
+    public GeminiThinkingConfig getThinkingConfig() {
+        return thinkingConfig;
+    }
+
+    public void setThinkingConfig(GeminiThinkingConfig thinkingConfig) {
+        this.thinkingConfig = thinkingConfig;
     }
 }

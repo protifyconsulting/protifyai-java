@@ -54,6 +54,8 @@ tasks.test {
 }
 
 tasks.register<Test>("smokeTest") {
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
     useJUnitPlatform {
         includeTags("smoke")
     }

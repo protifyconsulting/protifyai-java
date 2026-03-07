@@ -86,6 +86,23 @@ public class AnthropicResponse extends ProtifyAIResponse {
     }
 
     @Override
+    public String getReasoningContent() {
+        if (body.getContent() != null) {
+            StringBuilder sb = new StringBuilder();
+            for (AnthropicResponseContent block : body.getContent()) {
+                if ("thinking".equals(block.getType()) && block.getThinking() != null) {
+                    if (sb.length() > 0) sb.append("\n");
+                    sb.append(block.getThinking());
+                }
+            }
+            if (sb.length() > 0) {
+                return sb.toString();
+            }
+        }
+        return null;
+    }
+
+    @Override
     public String getStopReason() {
         return body.getStopReason();
     }

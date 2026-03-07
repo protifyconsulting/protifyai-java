@@ -17,7 +17,12 @@
 package ai.protify.core.internal.provider.openai;
 
 import ai.protify.core.internal.config.AIConfigProperty;
-import ai.protify.core.internal.provider.openai.model.*;
+import ai.protify.core.internal.provider.openai.model.OpenAIContentBlock;
+import ai.protify.core.internal.provider.openai.model.OpenAIFunctionCallOutput;
+import ai.protify.core.internal.provider.openai.model.OpenAIInputMessage;
+import ai.protify.core.internal.provider.openai.model.OpenAIReasoning;
+import ai.protify.core.internal.provider.openai.model.OpenAIRequestBody;
+import ai.protify.core.internal.provider.openai.model.OpenAITool;
 import ai.protify.core.request.*;
 import ai.protify.core.internal.util.json.JsonBuilder;
 import ai.protify.core.internal.util.json.ProtifyJson;
@@ -88,6 +93,7 @@ public final class OpenAIRequest extends ProtifyAIProviderRequest {
         Double topP = super.getConfiguration().getProperty(AIConfigProperty.TOP_P);
         Integer maxTokens = super.getConfiguration().getProperty(AIConfigProperty.MAX_OUTPUT_TOKENS);
         String instructions = super.getConfiguration().getProperty(AIConfigProperty.INSTRUCTIONS);
+        String reasoningEffort = super.getConfiguration().getProperty(AIConfigProperty.REASONING_EFFORT);
 
         OpenAIRequestBody body = new OpenAIRequestBody();
         body.setModel(super.getModelName());
@@ -96,6 +102,10 @@ public final class OpenAIRequest extends ProtifyAIProviderRequest {
         body.setMaxOutputTokens(maxTokens);
         body.setInstructions(instructions);
         body.setStream(stream);
+
+        if (reasoningEffort != null) {
+            body.setReasoning(OpenAIReasoning.of(reasoningEffort));
+        }
 
         // Map tools
         if (super.getTools() != null && !super.getTools().isEmpty()) {

@@ -136,14 +136,13 @@ public class ProtifyMCPClient implements MCPClient {
     }
 
     private void sendNotification(String method, Map<String, Object> params) {
-        // Notifications have no id, but we'll use a simple JSON construction
         StringBuilder sb = new StringBuilder();
         sb.append("{\"jsonrpc\":\"2.0\",\"method\":\"").append(ProtifyJson.escapeJson(method)).append("\"");
         if (params != null && !params.isEmpty()) {
             sb.append(",\"params\":").append(formatMap(params));
         }
         sb.append("}");
-        transport.sendRequest(sb.toString());
+        transport.sendNotification(sb.toString());
     }
 
     private void validateResponse(String response) {

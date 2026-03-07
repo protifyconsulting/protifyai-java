@@ -24,6 +24,7 @@ public class BedrockContentBlock {
     private BedrockImageBlock image;
     private BedrockToolUseBlock toolUse;
     private BedrockToolResultBlock toolResult;
+    private BedrockReasoningBlock reasoning;
 
     public static BedrockContentBlock text(String text) {
         BedrockContentBlock block = new BedrockContentBlock();
@@ -70,6 +71,15 @@ public class BedrockContentBlock {
     public void setToolUse(BedrockToolUseBlock toolUse) { this.toolUse = toolUse; }
     public BedrockToolResultBlock getToolResult() { return toolResult; }
     public void setToolResult(BedrockToolResultBlock toolResult) { this.toolResult = toolResult; }
+    public BedrockReasoningBlock getReasoning() { return reasoning; }
+    public void setReasoning(BedrockReasoningBlock reasoning) { this.reasoning = reasoning; }
+
+    public static class BedrockReasoningBlock {
+        private String text;
+
+        public String getText() { return text; }
+        public void setText(String text) { this.text = text; }
+    }
 
     public static class BedrockImageBlock {
         private String format;

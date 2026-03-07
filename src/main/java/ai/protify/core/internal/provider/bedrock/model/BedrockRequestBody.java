@@ -16,7 +16,10 @@
 
 package ai.protify.core.internal.provider.bedrock.model;
 
+import ai.protify.core.internal.util.json.ProtifyJsonProperty;
+
 import java.util.List;
+import java.util.Map;
 
 public class BedrockRequestBody {
 
@@ -24,6 +27,9 @@ public class BedrockRequestBody {
     private List<BedrockContentBlock> system;
     private BedrockInferenceConfig inferenceConfig;
     private BedrockToolConfig toolConfig;
+
+    @ProtifyJsonProperty("additionalModelRequestFields")
+    private Map<String, Object> additionalModelRequestFields;
 
     public List<BedrockMessage> getMessages() { return messages; }
     public void setMessages(List<BedrockMessage> messages) { this.messages = messages; }
@@ -33,4 +39,10 @@ public class BedrockRequestBody {
     public void setInferenceConfig(BedrockInferenceConfig inferenceConfig) { this.inferenceConfig = inferenceConfig; }
     public BedrockToolConfig getToolConfig() { return toolConfig; }
     public void setToolConfig(BedrockToolConfig toolConfig) { this.toolConfig = toolConfig; }
+
+    @ProtifyJsonProperty("additionalModelRequestFields")
+    public Map<String, Object> getAdditionalModelRequestFields() { return additionalModelRequestFields; }
+    public void setAdditionalModelRequestFields(Map<String, Object> additionalModelRequestFields) {
+        this.additionalModelRequestFields = additionalModelRequestFields;
+    }
 }

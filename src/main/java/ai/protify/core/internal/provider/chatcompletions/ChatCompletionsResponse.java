@@ -80,6 +80,15 @@ public class ChatCompletionsResponse extends ProtifyAIResponse {
     }
 
     @Override
+    public String getReasoningContent() {
+        ChatResponseMessage message = getFirstChoiceMessage();
+        if (message != null && message.getReasoningContent() != null) {
+            return message.getReasoningContent();
+        }
+        return null;
+    }
+
+    @Override
     public String getStopReason() {
         if (body.getChoices() != null && !body.getChoices().isEmpty()) {
             return body.getChoices().get(0).getFinishReason();

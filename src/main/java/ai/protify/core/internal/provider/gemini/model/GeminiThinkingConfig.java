@@ -14,17 +14,28 @@
  *  limitations under the License.
  */
 
-package ai.protify.core.internal.mcp;
+package ai.protify.core.internal.provider.gemini.model;
 
-public interface MCPTransport {
+import ai.protify.core.internal.util.json.ProtifyJsonProperty;
 
-    void open();
+public final class GeminiThinkingConfig {
 
-    String sendRequest(String jsonRpc);
+    @ProtifyJsonProperty("thinkingBudget")
+    private Integer thinkingBudget;
 
-    void sendNotification(String jsonRpc);
+    public GeminiThinkingConfig() {
+    }
 
-    boolean isOpen();
+    public GeminiThinkingConfig(Integer thinkingBudget) {
+        this.thinkingBudget = thinkingBudget;
+    }
 
-    void close();
+    @ProtifyJsonProperty("thinkingBudget")
+    public Integer getThinkingBudget() {
+        return thinkingBudget;
+    }
+
+    public void setThinkingBudget(Integer thinkingBudget) {
+        this.thinkingBudget = thinkingBudget;
+    }
 }

@@ -16,6 +16,7 @@
 
 package ai.protify.core.pipeline;
 
+import ai.protify.core.ReasoningEffort;
 import ai.protify.core.internal.config.AIConfigProperty;
 import ai.protify.core.internal.pipeline.ProtifyAIPipeline;
 import ai.protify.core.request.AIRequest;
@@ -80,6 +81,12 @@ public class AIPipelineBuilder {
 
     public AIPipelineBuilder maxOutputTokens(int maxOutputTokens) {
         this.pipelineProperties.put(AIConfigProperty.MAX_OUTPUT_TOKENS, maxOutputTokens);
+        return this;
+    }
+
+    public AIPipelineBuilder reasoningEffort(ReasoningEffort effort) {
+        java.util.Objects.requireNonNull(effort, "ReasoningEffort cannot be null");
+        this.pipelineProperties.put(AIConfigProperty.REASONING_EFFORT, effort.getValue());
         return this;
     }
 

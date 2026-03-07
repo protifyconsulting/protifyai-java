@@ -40,6 +40,8 @@ public interface AIModel {
     AIModel GEMINI_2_5_FLASH_LITE = SupportedModel.GEMINI_2_5_FLASH_LITE;
 
     // Open AI
+    AIModel GPT_5_4 = SupportedModel.GPT_5_4;
+    AIModel GPT_5_4_PRO = SupportedModel.GPT_5_4_PRO;
     AIModel GPT_5_2 = SupportedModel.GPT_5_2;
     AIModel GPT_5_2_PRO = SupportedModel.GPT_5_2_PRO;
     AIModel GPT_5_2_CODEX = SupportedModel.GPT_5_2_CODEX;
@@ -48,6 +50,7 @@ public interface AIModel {
     AIModel GPT_5_1_CODEX_MAX = SupportedModel.GPT_5_1_CODEX_MAX;
     AIModel GPT_5_MINI = SupportedModel.GPT_5_MINI;
     AIModel GPT_5_NANO = SupportedModel.GPT_5_NANO;
+    AIModel GPT_4_1 = SupportedModel.GPT_4_1;
 
     // Mistral
     AIModel MISTRAL_LARGE = SupportedModel.MISTRAL_LARGE;
@@ -71,12 +74,12 @@ public interface AIModel {
 
     // Together
     AIModel LLAMA_4_MAVERICK_TOGETHER = SupportedModel.LLAMA_4_MAVERICK_TOGETHER;
-    AIModel LLAMA_4_SCOUT_TOGETHER = SupportedModel.LLAMA_4_SCOUT_TOGETHER;
-    AIModel QWEN_3_5_397B_TOGETHER = SupportedModel.QWEN_3_5_397B_TOGETHER;
+    AIModel LLAMA_3_3_70B_TOGETHER = SupportedModel.LLAMA_3_3_70B_TOGETHER;
+    AIModel DEEPSEEK_V3_1_TOGETHER = SupportedModel.DEEPSEEK_V3_1_TOGETHER;
 
     // Fireworks
-    AIModel LLAMA_4_MAVERICK_FIREWORKS = SupportedModel.LLAMA_4_MAVERICK_FIREWORKS;
-    AIModel LLAMA_4_SCOUT_FIREWORKS = SupportedModel.LLAMA_4_SCOUT_FIREWORKS;
+    AIModel LLAMA_3_3_70B_FIREWORKS = SupportedModel.LLAMA_3_3_70B_FIREWORKS;
+    AIModel DEEPSEEK_V3_FIREWORKS = SupportedModel.DEEPSEEK_V3_FIREWORKS;
     AIModel QWEN_3_8B_FIREWORKS = SupportedModel.QWEN_3_8B_FIREWORKS;
 
     // xAI
@@ -86,6 +89,32 @@ public interface AIModel {
     AIModel GROK_3_MINI = SupportedModel.GROK_3_MINI;
     AIModel GROK_CODE_FAST = SupportedModel.GROK_CODE_FAST;
 
+    // Azure AI Foundry
+    AIModel CLAUDE_SONNET_4_6_FOUNDRY = SupportedModel.CLAUDE_SONNET_4_6_FOUNDRY;
+    AIModel CLAUDE_HAIKU_4_5_FOUNDRY = SupportedModel.CLAUDE_HAIKU_4_5_FOUNDRY;
+    AIModel GPT_5_2_FOUNDRY = SupportedModel.GPT_5_2_FOUNDRY;
+    AIModel GPT_5_1_FOUNDRY = SupportedModel.GPT_5_1_FOUNDRY;
+    AIModel GPT_5_MINI_FOUNDRY = SupportedModel.GPT_5_MINI_FOUNDRY;
+    AIModel GPT_4O_FOUNDRY = SupportedModel.GPT_4O_FOUNDRY;
+    AIModel GPT_4O_MINI_FOUNDRY = SupportedModel.GPT_4O_MINI_FOUNDRY;
+    AIModel MISTRAL_LARGE_FOUNDRY = SupportedModel.MISTRAL_LARGE_FOUNDRY;
+    AIModel MISTRAL_SMALL_FOUNDRY = SupportedModel.MISTRAL_SMALL_FOUNDRY;
+    AIModel LLAMA_3_3_70B_FOUNDRY = SupportedModel.LLAMA_3_3_70B_FOUNDRY;
+    AIModel LLAMA_4_SCOUT_FOUNDRY = SupportedModel.LLAMA_4_SCOUT_FOUNDRY;
+    AIModel LLAMA_4_MAVERICK_FOUNDRY = SupportedModel.LLAMA_4_MAVERICK_FOUNDRY;
+
+    // Azure OpenAI
+    AIModel GPT_5_2_AZURE = SupportedModel.GPT_5_2_AZURE;
+    AIModel GPT_5_1_AZURE = SupportedModel.GPT_5_1_AZURE;
+    AIModel GPT_5_MINI_AZURE = SupportedModel.GPT_5_MINI_AZURE;
+    AIModel GPT_5_NANO_AZURE = SupportedModel.GPT_5_NANO_AZURE;
+    AIModel GPT_4_1_AZURE = SupportedModel.GPT_4_1_AZURE;
+    AIModel GPT_4O_AZURE = SupportedModel.GPT_4O_AZURE;
+    AIModel GPT_4O_MINI_AZURE = SupportedModel.GPT_4O_MINI_AZURE;
+    AIModel O3_AZURE = SupportedModel.O3_AZURE;
+    AIModel O3_MINI_AZURE = SupportedModel.O3_MINI_AZURE;
+    AIModel O4_MINI_AZURE = SupportedModel.O4_MINI_AZURE;
+
     // Vertex AI
     AIModel GEMINI_2_5_PRO_VERTEX = SupportedModel.GEMINI_2_5_PRO_VERTEX;
     AIModel GEMINI_2_5_FLASH_VERTEX = SupportedModel.GEMINI_2_5_FLASH_VERTEX;
@@ -94,6 +123,16 @@ public interface AIModel {
     AIModel CLAUDE_OPUS_4_6_BEDROCK = SupportedModel.CLAUDE_OPUS_4_6_BEDROCK;
     AIModel CLAUDE_SONNET_4_6_BEDROCK = SupportedModel.CLAUDE_SONNET_4_6_BEDROCK;
     AIModel CLAUDE_HAIKU_4_5_BEDROCK = SupportedModel.CLAUDE_HAIKU_4_5_BEDROCK;
+    AIModel LLAMA_4_MAVERICK_BEDROCK = SupportedModel.LLAMA_4_MAVERICK_BEDROCK;
+    AIModel LLAMA_4_SCOUT_BEDROCK = SupportedModel.LLAMA_4_SCOUT_BEDROCK;
+    AIModel LLAMA_3_3_70B_BEDROCK = SupportedModel.LLAMA_3_3_70B_BEDROCK;
+    AIModel MISTRAL_LARGE_BEDROCK = SupportedModel.MISTRAL_LARGE_BEDROCK;
+    AIModel MISTRAL_SMALL_BEDROCK = SupportedModel.MISTRAL_SMALL_BEDROCK;
+    AIModel AMAZON_NOVA_PRO_BEDROCK = SupportedModel.AMAZON_NOVA_PRO_BEDROCK;
+    AIModel AMAZON_NOVA_LITE_BEDROCK = SupportedModel.AMAZON_NOVA_LITE_BEDROCK;
+    AIModel AMAZON_NOVA_MICRO_BEDROCK = SupportedModel.AMAZON_NOVA_MICRO_BEDROCK;
+    AIModel COHERE_COMMAND_R_PLUS_BEDROCK = SupportedModel.COHERE_COMMAND_R_PLUS_BEDROCK;
+    AIModel COHERE_COMMAND_R_BEDROCK = SupportedModel.COHERE_COMMAND_R_BEDROCK;
 
     static AIModel custom(String modelName, AIProvider provider) {
         Objects.requireNonNull(modelName, "Model name cannot be null");

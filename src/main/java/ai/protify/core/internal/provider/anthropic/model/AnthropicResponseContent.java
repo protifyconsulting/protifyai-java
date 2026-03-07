@@ -23,6 +23,9 @@ public class AnthropicResponseContent {
     private String type;
     private String text;
 
+    // thinking fields
+    private String thinking;
+
     // tool_use fields
     private String id;
     private String name;
@@ -42,6 +45,14 @@ public class AnthropicResponseContent {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getThinking() {
+        return thinking;
+    }
+
+    public void setThinking(String thinking) {
+        this.thinking = thinking;
     }
 
     public String getId() {

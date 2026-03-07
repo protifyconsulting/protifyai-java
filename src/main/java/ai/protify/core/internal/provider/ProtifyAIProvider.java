@@ -18,6 +18,7 @@ package ai.protify.core.internal.provider;
 
 import ai.protify.core.internal.provider.anthropic.AnthropicClient;
 import ai.protify.core.internal.provider.azure.AzureOpenAIClient;
+import ai.protify.core.internal.provider.azurefoundry.AzureAIFoundryClient;
 import ai.protify.core.internal.provider.bedrock.BedrockClient;
 import ai.protify.core.internal.provider.deepseek.DeepSeekClient;
 import ai.protify.core.internal.provider.fireworks.FireworksClient;
@@ -46,6 +47,7 @@ public enum ProtifyAIProvider implements AIProvider {
     FIREWORKS("Fireworks", FireworksClient.class, "FIREWORKS_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP)),
     X_AI("xAI", XAIClient.class, "XAI_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP)),
     AZURE_OPEN_AI("Azure OpenAI", AzureOpenAIClient.class, "AZURE_OPENAI_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF)),
+    AZURE_AI_FOUNDRY("Azure AI Foundry", AzureAIFoundryClient.class, "AZURE_AI_FOUNDRY_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF)),
     VERTEX_AI("Vertex AI", VertexAIClient.class, "VERTEX_AI_ACCESS_TOKEN", false, Set.of(MimeType.PDF, MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF, MimeType.HEIC, MimeType.HEIF)),
     AWS_BEDROCK("AWS Bedrock", BedrockClient.class, "AWS_BEDROCK_API_KEY", false, Set.of(MimeType.PNG, MimeType.JPG, MimeType.JPEG, MimeType.WEBP, MimeType.GIF));
 
@@ -100,7 +102,7 @@ public enum ProtifyAIProvider implements AIProvider {
                     "Content-Type", "application/json"
             );
         }
-        if (this == AZURE_OPEN_AI) {
+        if (this == AZURE_OPEN_AI || this == AZURE_AI_FOUNDRY) {
             return Map.of(
                     "api-key", credential,
                     "Content-Type", "application/json"

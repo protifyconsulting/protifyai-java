@@ -36,7 +36,9 @@ import ai.protify.core.tool.AIToolResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class BedrockRequest extends ProtifyAIProviderRequest {
@@ -44,9 +46,21 @@ public class BedrockRequest extends ProtifyAIProviderRequest {
     private static final Set<AIConfigProperty> UNSUPPORTED = Collections.unmodifiableSet(
             EnumSet.of(AIConfigProperty.TOP_K));
 
+    private static final Set<AIConfigProperty> THINKING_UNSUPPORTED = Collections.unmodifiableSet(
+            EnumSet.of(AIConfigProperty.TEMPERATURE, AIConfigProperty.TOP_P, AIConfigProperty.TOP_K));
+
     @Override
     protected Set<AIConfigProperty> getUnsupportedParameters() {
         return UNSUPPORTED;
+    }
+
+    @Override
+    protected Set<AIConfigProperty> getUnsupportedParametersForModel(String model) {
+        String reasoningEffort = super.getConfiguration().getProperty(AIConfigProperty.REASONING_EFFORT);
+        if (reasoningEffort != null) {
+            return THINKING_UNSUPPORTED;
+        }
+        return Collections.emptySet();
     }
 
     private String json;
@@ -71,6 +85,7 @@ public class BedrockRequest extends ProtifyAIProviderRequest {
         Double topP = super.getConfiguration().getProperty(AIConfigProperty.TOP_P);
         Integer maxTokens = super.getConfiguration().getProperty(AIConfigProperty.MAX_OUTPUT_TOKENS);
         String instructions = super.getConfiguration().getProperty(AIConfigProperty.INSTRUCTIONS);
+        String reasoningEffort = super.getConfiguration().getProperty(AIConfigProperty.REASONING_EFFORT);
 
         BedrockRequestBody body = new BedrockRequestBody();
 
@@ -88,6 +103,17 @@ public class BedrockRequest extends ProtifyAIProviderRequest {
             body.setInferenceConfig(config);
         }
 
+        // Thinking via additionalModelRequestFields
+        if (reasoningEffort != null) {
+            int budgetTokens = mapReasoningEffortToBudgetTokens(reasoningEffort, maxTokens);
+            Map<String, Object> thinking = new LinkedHashMap<>();
+            thinking.put("type", "enabled");
+            thinking.put("budget_tokens", budgetTokens);
+            Map<String, Object> additional = new LinkedHashMap<>();
+            additional.put("thinking", thinking);
+            body.setAdditionalModelRequestFields(additional);
+        }
+
         // Tools
         if (super.getTools() != null && !super.getTools().isEmpty()) {
             body.setToolConfig(BedrockToolConfig.from(super.getTools()));
@@ -97,6 +123,20 @@ public class BedrockRequest extends ProtifyAIProviderRequest {
         body.setMessages(buildMessages());
 
         return body;
+    }
+
+    private static int mapReasoningEffortToBudgetTokens(String effort, Integer maxTokens) {
+        int max = maxTokens != null ? maxTokens : 4096;
+        switch (effort) {
+            case "low":
+                return Math.min(1024, max);
+            case "medium":
+                return Math.min(5000, max);
+            case "high":
+                return Math.min(16000, max);
+            default:
+                return Math.min(5000, max);
+        }
     }
 
     private List<BedrockMessage> buildMessages() {

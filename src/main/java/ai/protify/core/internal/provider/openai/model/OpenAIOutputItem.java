@@ -28,6 +28,9 @@ public class OpenAIOutputItem {
     private String role;
     private List<OpenAIOutputContent> content;
 
+    // "reasoning" fields
+    private List<OpenAIOutputContent> summary;
+
     // "function_call" fields
     @ProtifyJsonProperty("call_id")
     private String callId;
@@ -57,6 +60,14 @@ public class OpenAIOutputItem {
 
     public void setContent(List<OpenAIOutputContent> content) {
         this.content = content;
+    }
+
+    public List<OpenAIOutputContent> getSummary() {
+        return summary;
+    }
+
+    public void setSummary(List<OpenAIOutputContent> summary) {
+        this.summary = summary;
     }
 
     @ProtifyJsonProperty("call_id")

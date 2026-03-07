@@ -25,6 +25,9 @@ public class ChatResponseMessage {
     private String role;
     private String content;
 
+    @ProtifyJsonProperty("reasoning_content")
+    private String reasoningContent;
+
     @ProtifyJsonProperty("tool_calls")
     private List<ChatToolCall> toolCalls;
 
@@ -42,6 +45,15 @@ public class ChatResponseMessage {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @ProtifyJsonProperty("reasoning_content")
+    public String getReasoningContent() {
+        return reasoningContent;
+    }
+
+    public void setReasoningContent(String reasoningContent) {
+        this.reasoningContent = reasoningContent;
     }
 
     @ProtifyJsonProperty("tool_calls")
