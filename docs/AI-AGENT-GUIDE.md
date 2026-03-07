@@ -4,7 +4,7 @@ This document is designed for AI coding agents (Claude, Copilot, Cursor, etc.) t
 
 ## What This Is
 
-Protify AI is a zero-dependency, provider-agnostic Java SDK for AI. One API works across 12 providers: OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Together, Fireworks, xAI, Azure OpenAI, Google Vertex AI, and AWS Bedrock.
+Protify AI is a zero-dependency, provider-agnostic Java SDK for AI. One API works across 13 providers: OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Together, Fireworks, xAI, Azure OpenAI, Azure AI Foundry, Google Vertex AI, and AWS Bedrock.
 
 **Maven coordinates:**
 ```xml
@@ -30,13 +30,14 @@ All public API classes live under `ai.protify.core`:
 
 | Package | Key Classes |
 |---|---|
-| `ai.protify.core` | `ProtifyAI`, `AIClient`, `AIClientBuilder`, `AIModel` |
+| `ai.protify.core` | `ProtifyAI`, `AIClient`, `AIClientBuilder`, `AIModel`, `ReasoningEffort` |
 | `ai.protify.core.request` | `AIRequest`, `AIRequestBuilder`, `AIInput`, `AITextInput`, `AIFileInput` |
 | `ai.protify.core.response` | `AIResponse`, `AIStreamResponse` |
 | `ai.protify.core.conversation` | `AIConversation`, `AIConversationBuilder`, `AIConversationStore`, `AIConversationState` |
+| `ai.protify.core.message` | `AIMessage` |
 | `ai.protify.core.pipeline` | `AIPipeline`, `AIPipelineBuilder`, `AIPipelineContext`, `PipelineStep` |
 | `ai.protify.core.tool` | `AITool`, `AIToolBuilder`, `AIToolParameter`, `AIToolCall`, `AIToolResult`, `AIToolHandler` |
-| `ai.protify.core.service` | `@AIService`, `@Instructions`, `@UserMessage`, `@V`, `@Temperature`, `@MaxTokens` |
+| `ai.protify.core.service` | `@AIService`, `@Instructions`, `@UserMessage`, `@V`, `@Temperature`, `@MaxTokens`, `@Reasoning` |
 | `ai.protify.core.resiliency` | `RetryPolicy`, `RetryPolicyBuilder`, `RetryBackoffStrategy` |
 | `ai.protify.core.provider` | `AIProvider`, `AIProviderClient` |
 | `ai.protify.core.mcp` | `MCPClient` |
@@ -90,6 +91,7 @@ AIClient client = AIClient.builder()
         .temperature(0.7)
         .maxOutputTokens(1000)
         .topP(0.9)
+        .reasoningEffort(ReasoningEffort.HIGH)
         .retryPolicy(RetryPolicy.builder().maxRetries(3).build())
         .build();
 ```
@@ -256,6 +258,10 @@ interface SentimentAnalyzer {
     @UserMessage("Write a story about: {{topic}}")
     AIStreamResponse writeStory(@V("topic") String topic);
 
+    @Reasoning(ReasoningEffort.HIGH)
+    @UserMessage("Solve: {{problem}}")
+    String solve(@V("problem") String problem);
+
     @UserMessage("Summarize: {{text}}")
     CompletableFuture<String> summarizeAsync(@V("text") String text);
 }
@@ -323,7 +329,7 @@ MCPClient mcp = MCPClient.http("http://localhost:8080/mcp");
 `AIModel.CLAUDE_OPUS_4_6`, `AIModel.CLAUDE_SONNET_4_6`, `AIModel.CLAUDE_HAIKU_4_5`
 
 ### OpenAI
-`AIModel.GPT_5_2`, `GPT_5_2_PRO`, `GPT_5_2_CODEX`, `GPT_5_1`, `GPT_5_1_CODEX`, `GPT_5_1_CODEX_MAX`, `GPT_5_MINI`, `GPT_5_NANO`
+`AIModel.GPT_5_4`, `GPT_5_4_PRO`, `GPT_5_2`, `GPT_5_2_PRO`, `GPT_5_2_CODEX`, `GPT_5_1`, `GPT_5_1_CODEX`, `GPT_5_1_CODEX_MAX`, `GPT_5_MINI`, `GPT_5_NANO`, `GPT_4_1`
 
 ### Google Gemini
 `AIModel.GEMINI_3_1_PRO_PREVIEW`, `GEMINI_3_FLASH_PREVIEW`, `GEMINI_2_5_PRO`, `GEMINI_2_5_FLASH`, `GEMINI_2_5_FLASH_LITE`
@@ -344,10 +350,19 @@ MCPClient mcp = MCPClient.http("http://localhost:8080/mcp");
 `AIModel.LLAMA_3_3_70B_FIREWORKS`, `DEEPSEEK_V3_FIREWORKS`, `QWEN_3_8B_FIREWORKS`
 
 ### xAI
-`AIModel.GROK_4_1_FAST`, `GROK_4_1_FAST_NON_REASONING`, `GROK_4`, `GROK_CODE_FAST`
+`AIModel.GROK_4_1_FAST`, `GROK_4_1_FAST_NON_REASONING`, `GROK_4`, `GROK_3_MINI`, `GROK_CODE_FAST`
 
-### Cloud Providers
-`AIModel.GEMINI_2_5_PRO_VERTEX`, `GEMINI_2_5_FLASH_VERTEX`, `CLAUDE_OPUS_4_6_BEDROCK`, `CLAUDE_SONNET_4_6_BEDROCK`, `CLAUDE_HAIKU_4_5_BEDROCK`
+### Azure OpenAI
+`AIModel.GPT_5_2_AZURE`, `GPT_5_1_AZURE`, `GPT_5_MINI_AZURE`, `GPT_5_NANO_AZURE`, `GPT_4_1_AZURE`, `GPT_4O_AZURE`, `GPT_4O_MINI_AZURE`, `O3_AZURE`, `O3_MINI_AZURE`, `O4_MINI_AZURE`
+
+### Azure AI Foundry
+`AIModel.CLAUDE_SONNET_4_6_FOUNDRY`, `CLAUDE_HAIKU_4_5_FOUNDRY`, `GPT_5_2_FOUNDRY`, `GPT_5_1_FOUNDRY`, `GPT_5_MINI_FOUNDRY`, `GPT_4O_FOUNDRY`, `GPT_4O_MINI_FOUNDRY`, `MISTRAL_LARGE_FOUNDRY`, `MISTRAL_SMALL_FOUNDRY`, `LLAMA_3_3_70B_FOUNDRY`, `LLAMA_4_SCOUT_FOUNDRY`, `LLAMA_4_MAVERICK_FOUNDRY`
+
+### Google Vertex AI
+`AIModel.GEMINI_2_5_PRO_VERTEX`, `GEMINI_2_5_FLASH_VERTEX`
+
+### AWS Bedrock
+`AIModel.CLAUDE_OPUS_4_6_BEDROCK`, `CLAUDE_SONNET_4_6_BEDROCK`, `CLAUDE_HAIKU_4_5_BEDROCK`, `LLAMA_4_MAVERICK_BEDROCK`, `LLAMA_4_SCOUT_BEDROCK`, `LLAMA_3_3_70B_BEDROCK`, `MISTRAL_LARGE_BEDROCK`, `MISTRAL_SMALL_BEDROCK`, `AMAZON_NOVA_PRO_BEDROCK`, `AMAZON_NOVA_LITE_BEDROCK`, `AMAZON_NOVA_MICRO_BEDROCK`, `COHERE_COMMAND_R_PLUS_BEDROCK`, `COHERE_COMMAND_R_BEDROCK`
 
 ### Custom Model
 ```java
@@ -364,15 +379,69 @@ String modelName         = response.getModelName();
 long inputTokens         = response.getInputTokens();
 long outputTokens        = response.getOutputTokens();
 long totalTokens         = response.getTotalTokens();
+long processingMs        = response.getProcessingTimeMillis();
 boolean cached           = response.isCachedResponse();
 String rawJson           = response.getProviderResponse();
 String responseId        = response.getResponseId();
+String correlationId     = response.getCorrelationId();
+String pipelineId        = response.getPipelineId();
 boolean hasTools         = response.hasToolCalls();
 List<AIToolCall> calls   = response.getToolCalls();
+String reasoning         = response.getReasoningContent(); // reasoning model output
+String stopReason        = response.getStopReason();
 
 // Structured output
 MyPojo obj       = response.as(MyPojo.class);
 List<MyPojo> list = response.asList(MyPojo.class);
+```
+
+---
+
+## Cloud Provider Configuration
+
+### Azure OpenAI
+
+```java
+AIClient client = AIClient.builder()
+        .model(AIModel.GPT_5_2_AZURE)
+        .apiKey("my-azure-key")           // or AZURE_OPENAI_API_KEY env var
+        .resourceName("my-resource")
+        .deploymentName("my-deployment")
+        .apiVersion("2024-12-01-preview") // optional
+        .build();
+```
+
+### Azure AI Foundry
+
+```java
+AIClient client = AIClient.builder()
+        .model(AIModel.CLAUDE_SONNET_4_6_FOUNDRY)
+        .apiKey("my-foundry-key")         // or AZURE_AI_FOUNDRY_API_KEY env var
+        .resourceName("my-resource")
+        .build();
+```
+
+### Google Vertex AI
+
+```java
+AIClient client = AIClient.builder()
+        .model(AIModel.GEMINI_2_5_PRO_VERTEX)
+        .apiKey("my-access-token")        // or VERTEX_AI_ACCESS_TOKEN env var
+        .region("us-central1")
+        .projectId("my-gcp-project")
+        .build();
+```
+
+### AWS Bedrock
+
+```java
+AIClient client = AIClient.builder()
+        .model(AIModel.CLAUDE_SONNET_4_6_BEDROCK)
+        .region("us-east-1")
+        .awsAccessKeyId("AKIA...")        // or AWS_ACCESS_KEY_ID env var
+        .awsSecretAccessKey("secret")     // or AWS_SECRET_ACCESS_KEY env var
+        .awsSessionToken("token")         // optional, or AWS_SESSION_TOKEN env var
+        .build();
 ```
 
 ---
@@ -393,6 +462,7 @@ Each provider reads from an environment variable by default:
 | Fireworks | `FIREWORKS_API_KEY` |
 | xAI | `XAI_API_KEY` |
 | Azure OpenAI | `AZURE_OPENAI_API_KEY` |
+| Azure AI Foundry | `AZURE_AI_FOUNDRY_API_KEY` |
 | Vertex AI | `VERTEX_AI_ACCESS_TOKEN` |
 | AWS Bedrock | `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` |
 
