@@ -87,6 +87,8 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
 implementation 'ai.protify:protifyai-core:0.1.5'
 ```
 
+**Spring Boot:** An experimental [Spring Boot Starter](docs/spring-boot-starter.md) with auto-configuration, `@AIService` bean scanning, and property-based setup is available in the source but not yet published to Maven Central. If there's demand, it will be published as `ai.protify:protifyai-spring-boot-starter`.
+
 ```java
 import ai.protify.core.AIClient;
 import ai.protify.core.AIModel;
@@ -125,19 +127,30 @@ ProtifyAI.initialize();
 
 ## AI Clients
 
-An `AIClient` is a reusable, configured entry point for making AI requests. Each client is bound to a specific model and provider. See [Built-in Models](#built-in-models) for the full list of models, [Cloud Providers](#cloud-providers) for Azure/Vertex/Bedrock setup, and [Custom Models and Providers](#custom-models-and-providers) for using your own.
+An `AIClient` is a reusable, configured entry point for making AI requests. Each client is bound to a specific model and provider.
+
+The SDK includes [built-in constants](#built-in-models) for popular models, but you can use **any model** from any supported provider with `explicitModelVersion`:
 
 ```java
+// Using a built-in model constant
 AIClient client = AIClient.builder()
         .model(AIModel.CLAUDE_SONNET_4_6)
         .build();
+
+// Using any model by name — no built-in constant needed
+AIClient client = AIClient.builder()
+        .provider(ProtifyAIProvider.OPEN_AI)
+        .explicitModelVersion("gpt-5.4-nano")
+        .build();
 ```
+
+This means you're never limited to the built-in constants. When a provider releases a new model, you can use it immediately without waiting for an SDK update. See [Cloud Providers](#cloud-providers) for Azure/Vertex/Bedrock setup and [Custom Models and Providers](#custom-models-and-providers) for adding your own provider.
 
 ### Client Configuration
 
 ```java
 AIClient client = AIClient.builder()
-        .model(AIModel.GPT_5_1)
+        .model(AIModel.GPT_5_4)
         .instructions("You are a helpful assistant. Respond concisely.")
         .temperature(0.7)
         .maxOutputTokens(500)
@@ -1680,157 +1693,50 @@ try (MCPClient mcp = MCPClient.stdio("npx", "-y", "@modelcontextprotocol/server-
 
 ## Built-in Models
 
-**Anthropic:**
+The SDK includes convenience constants for popular models. For any model not listed here, use `explicitModelVersion` with the appropriate provider — no SDK update required.
 
-| Constant | Model ID |
-|---|---|
-| `AIModel.CLAUDE_OPUS_4_6` | `claude-opus-4-6` |
-| `AIModel.CLAUDE_SONNET_4_6` | `claude-sonnet-4-6` |
-| `AIModel.CLAUDE_HAIKU_4_5` | `claude-haiku-4-5` |
-
-**OpenAI:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.GPT_5_4` | `gpt-5.4` |
-| `AIModel.GPT_5_4_PRO` | `gpt-5.4-pro` |
-| `AIModel.GPT_5_2` | `gpt-5.2` |
-| `AIModel.GPT_5_2_PRO` | `gpt-5.2-pro` |
-| `AIModel.GPT_5_2_CODEX` | `gpt-5.2-codex` |
-| `AIModel.GPT_5_1` | `gpt-5.1` |
-| `AIModel.GPT_5_1_CODEX` | `gpt-5.1-codex` |
-| `AIModel.GPT_5_1_CODEX_MAX` | `gpt-5.1-codex-max` |
-| `AIModel.GPT_5_MINI` | `gpt-5-mini` |
-| `AIModel.GPT_5_NANO` | `gpt-5-nano` |
-| `AIModel.GPT_4_1` | `gpt-4.1` |
-
-**Google Gemini:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.GEMINI_3_1_PRO_PREVIEW` | `gemini-3.1-pro-preview` |
-| `AIModel.GEMINI_3_FLASH_PREVIEW` | `gemini-3-flash-preview` |
-| `AIModel.GEMINI_2_5_PRO` | `gemini-2.5-pro` |
-| `AIModel.GEMINI_2_5_FLASH` | `gemini-2.5-flash` |
-| `AIModel.GEMINI_2_5_FLASH_LITE` | `gemini-2.5-flash-lite` |
-
-**Mistral:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.MISTRAL_LARGE` | `mistral-large-latest` |
-| `AIModel.MISTRAL_MEDIUM` | `mistral-medium-latest` |
-| `AIModel.MISTRAL_SMALL` | `mistral-small-latest` |
-| `AIModel.CODESTRAL` | `codestral-latest` |
-| `AIModel.DEVSTRAL` | `devstral-latest` |
-| `AIModel.MAGISTRAL_MEDIUM` | `magistral-medium-latest` |
-| `AIModel.MAGISTRAL_SMALL` | `magistral-small-latest` |
-
-**Groq:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.LLAMA_4_SCOUT` | `meta-llama/llama-4-scout-17b-16e-instruct` |
-| `AIModel.LLAMA_3_3_70B` | `llama-3.3-70b-versatile` |
-| `AIModel.LLAMA_3_1_8B` | `llama-3.1-8b-instant` |
-| `AIModel.GPT_OSS_120B` | `openai/gpt-oss-120b` |
-| `AIModel.QWEN_3_32B_GROQ` | `qwen/qwen3-32b` |
-
-**DeepSeek:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.DEEPSEEK_CHAT` | `deepseek-chat` |
-| `AIModel.DEEPSEEK_REASONER` | `deepseek-reasoner` |
-
-**Together:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.LLAMA_4_MAVERICK_TOGETHER` | `meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` |
-| `AIModel.LLAMA_3_3_70B_TOGETHER` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
-| `AIModel.DEEPSEEK_V3_1_TOGETHER` | `deepseek-ai/DeepSeek-V3.1` |
-
-**Fireworks:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.LLAMA_3_3_70B_FIREWORKS` | `accounts/fireworks/models/llama-v3p3-70b-instruct` |
-| `AIModel.DEEPSEEK_V3_FIREWORKS` | `accounts/fireworks/models/deepseek-v3p1` |
-| `AIModel.QWEN_3_8B_FIREWORKS` | `accounts/fireworks/models/qwen3-8b` |
-
-**xAI:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.GROK_4_1_FAST` | `grok-4-1-fast-reasoning` |
-| `AIModel.GROK_4_1_FAST_NON_REASONING` | `grok-4-1-fast-non-reasoning` |
-| `AIModel.GROK_4` | `grok-4` |
-| `AIModel.GROK_3_MINI` | `grok-3-mini` |
-| `AIModel.GROK_CODE_FAST` | `grok-code-fast` |
-
-**Azure OpenAI:**
-
-| Constant | Model ID |
-|---|---|
-| `AIModel.GPT_5_2_AZURE` | `gpt-5.2` |
-| `AIModel.GPT_5_1_AZURE` | `gpt-5.1` |
-| `AIModel.GPT_5_MINI_AZURE` | `gpt-5-mini` |
-| `AIModel.GPT_5_NANO_AZURE` | `gpt-5-nano` |
-| `AIModel.GPT_4_1_AZURE` | `gpt-4.1` |
-| `AIModel.GPT_4O_AZURE` | `gpt-4o` |
-| `AIModel.GPT_4O_MINI_AZURE` | `gpt-4o-mini` |
-| `AIModel.O3_AZURE` | `o3` |
-| `AIModel.O3_MINI_AZURE` | `o3-mini` |
-| `AIModel.O4_MINI_AZURE` | `o4-mini` |
-
-**Azure AI Foundry:**
-
-Azure AI Foundry provides a unified API across multiple model vendors. A single `resourceName` and API key gives you access to models from Anthropic, OpenAI, Mistral, Meta, and more — all through the same chat completions interface.
-
-| Constant | Model ID | Vendor |
+| Provider | Constant | Model ID |
 |---|---|---|
-| `AIModel.CLAUDE_SONNET_4_6_FOUNDRY` | `claude-sonnet-4-6` | Anthropic |
-| `AIModel.CLAUDE_HAIKU_4_5_FOUNDRY` | `claude-haiku-4-5` | Anthropic |
-| `AIModel.GPT_5_2_FOUNDRY` | `gpt-5.2` | OpenAI |
-| `AIModel.GPT_5_1_FOUNDRY` | `gpt-5.1` | OpenAI |
-| `AIModel.GPT_5_MINI_FOUNDRY` | `gpt-5-mini` | OpenAI |
-| `AIModel.GPT_4O_FOUNDRY` | `gpt-4o` | OpenAI |
-| `AIModel.GPT_4O_MINI_FOUNDRY` | `gpt-4o-mini` | OpenAI |
-| `AIModel.MISTRAL_LARGE_FOUNDRY` | `mistral-large-latest` | Mistral |
-| `AIModel.MISTRAL_SMALL_FOUNDRY` | `mistral-small-latest` | Mistral |
-| `AIModel.LLAMA_3_3_70B_FOUNDRY` | `Meta-Llama-3.3-70B-Instruct` | Meta |
-| `AIModel.LLAMA_4_SCOUT_FOUNDRY` | `Meta-Llama-4-Scout-17B-16E-Instruct` | Meta |
-| `AIModel.LLAMA_4_MAVERICK_FOUNDRY` | `Meta-Llama-4-Maverick-17B-128E-Instruct-FP8` | Meta |
+| Anthropic | `AIModel.CLAUDE_OPUS_4_6` | `claude-opus-4-6` |
+| Anthropic | `AIModel.CLAUDE_SONNET_4_6` | `claude-sonnet-4-6` |
+| Anthropic | `AIModel.CLAUDE_HAIKU_4_5` | `claude-haiku-4-5` |
+| OpenAI | `AIModel.GPT_5_4` | `gpt-5.4` |
+| OpenAI | `AIModel.GPT_5_4_MINI` | `gpt-5.4-mini` |
+| OpenAI | `AIModel.O3` | `o3` |
+| OpenAI | `AIModel.O4_MINI` | `o4-mini` |
+| Google Gemini | `AIModel.GEMINI_3_1_PRO_PREVIEW` | `gemini-3.1-pro-preview` |
+| Google Gemini | `AIModel.GEMINI_2_5_PRO` | `gemini-2.5-pro` |
+| Google Gemini | `AIModel.GEMINI_2_5_FLASH` | `gemini-2.5-flash` |
+| Mistral | `AIModel.MISTRAL_LARGE` | `mistral-large-latest` |
+| Mistral | `AIModel.MISTRAL_SMALL` | `mistral-small-latest` |
+| Mistral | `AIModel.CODESTRAL` | `codestral-latest` |
+| Groq | `AIModel.LLAMA_4_SCOUT` | `meta-llama/llama-4-scout-17b-16e-instruct` |
+| Groq | `AIModel.LLAMA_3_3_70B` | `llama-3.3-70b-versatile` |
+| DeepSeek | `AIModel.DEEPSEEK_CHAT` | `deepseek-chat` |
+| DeepSeek | `AIModel.DEEPSEEK_REASONER` | `deepseek-reasoner` |
+| Together | `AIModel.LLAMA_4_MAVERICK_TOGETHER` | `meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` |
+| Fireworks | `AIModel.LLAMA_3_3_70B_FIREWORKS` | `accounts/fireworks/models/llama-v3p3-70b-instruct` |
+| xAI | `AIModel.GROK_4_20` | `grok-4.20-0309-reasoning` |
+| xAI | `AIModel.GROK_4` | `grok-4` |
+| Azure OpenAI | `AIModel.GPT_5_4_AZURE` | `gpt-5.4` |
+| Azure OpenAI | `AIModel.O4_MINI_AZURE` | `o4-mini` |
+| Azure AI Foundry | `AIModel.GPT_5_4_FOUNDRY` | `gpt-5.4` |
+| Azure AI Foundry | `AIModel.CLAUDE_SONNET_4_6_FOUNDRY` | `claude-sonnet-4-6` |
+| Azure AI Foundry | `AIModel.LLAMA_4_SCOUT_FOUNDRY` | `Meta-Llama-4-Scout-17B-16E-Instruct` |
+| Vertex AI | `AIModel.GEMINI_2_5_PRO_VERTEX` | `gemini-2.5-pro` |
+| Vertex AI | `AIModel.GEMINI_2_5_FLASH_VERTEX` | `gemini-2.5-flash` |
+| AWS Bedrock | `AIModel.CLAUDE_SONNET_4_6_BEDROCK` | `anthropic.claude-sonnet-4-6` |
+| AWS Bedrock | `AIModel.AMAZON_NOVA_PREMIER_BEDROCK` | `amazon.nova-premier-v1:0` |
+| AWS Bedrock | `AIModel.LLAMA_4_MAVERICK_BEDROCK` | `meta.llama4-maverick-17b-instruct-v1:0` |
 
-**Google Vertex AI:**
+To use a model not in this table:
 
-| Constant | Model ID |
-|---|---|
-| `AIModel.GEMINI_2_5_PRO_VERTEX` | `gemini-2.5-pro` |
-| `AIModel.GEMINI_2_5_FLASH_VERTEX` | `gemini-2.5-flash` |
-
-**AWS Bedrock:**
-
-The Bedrock Converse API provides a unified interface across all Bedrock-supported model providers.
-
-| Constant | Model ID | Vendor |
-|---|---|---|
-| `AIModel.CLAUDE_OPUS_4_6_BEDROCK` | `anthropic.claude-opus-4-6-v1` | Anthropic |
-| `AIModel.CLAUDE_SONNET_4_6_BEDROCK` | `anthropic.claude-sonnet-4-6` | Anthropic |
-| `AIModel.CLAUDE_HAIKU_4_5_BEDROCK` | `anthropic.claude-haiku-4-5-20251001-v1:0` | Anthropic |
-| `AIModel.LLAMA_4_MAVERICK_BEDROCK` | `meta.llama4-maverick-17b-instruct-v1:0` | Meta |
-| `AIModel.LLAMA_4_SCOUT_BEDROCK` | `meta.llama4-scout-17b-instruct-v1:0` | Meta |
-| `AIModel.LLAMA_3_3_70B_BEDROCK` | `meta.llama3-3-70b-instruct-v1:0` | Meta |
-| `AIModel.MISTRAL_LARGE_BEDROCK` | `mistral.mistral-large-2411-v1:0` | Mistral |
-| `AIModel.MISTRAL_SMALL_BEDROCK` | `mistral.mistral-small-2503-v1:0` | Mistral |
-| `AIModel.AMAZON_NOVA_PRO_BEDROCK` | `amazon.nova-pro-v1:0` | Amazon |
-| `AIModel.AMAZON_NOVA_LITE_BEDROCK` | `amazon.nova-lite-v1:0` | Amazon |
-| `AIModel.AMAZON_NOVA_MICRO_BEDROCK` | `amazon.nova-micro-v1:0` | Amazon |
-| `AIModel.COHERE_COMMAND_R_PLUS_BEDROCK` | `cohere.command-r-plus-v1:0` | Cohere |
-| `AIModel.COHERE_COMMAND_R_BEDROCK` | `cohere.command-r-v1:0` | Cohere |
-
-All built-in models use auto-updating aliases where available. For pinned versions, use `AIModel.custom()`.
+```java
+AIClient client = AIClient.builder()
+        .provider(ProtifyAIProvider.OPEN_AI)
+        .explicitModelVersion("gpt-5.4-nano")
+        .build();
+```
 
 ---
 

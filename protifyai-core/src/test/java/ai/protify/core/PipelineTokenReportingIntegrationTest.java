@@ -47,7 +47,7 @@ public class PipelineTokenReportingIntegrationTest {
                 .build();
 
         AIClient openaiClient = AIClient.builder()
-                .model(AIModel.GPT_5_NANO)
+                .model(AIModel.GPT_5_4_MINI)
                 .build();
 
         AIPipeline pipeline = AIPipeline.builder()

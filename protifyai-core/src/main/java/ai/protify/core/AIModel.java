@@ -34,39 +34,23 @@ public interface AIModel {
 
     // Gemini
     AIModel GEMINI_3_1_PRO_PREVIEW = SupportedModel.GEMINI_3_1_PRO_PREVIEW;
-    AIModel GEMINI_3_FLASH_PREVIEW = SupportedModel.GEMINI_3_FLASH_PREVIEW;
     AIModel GEMINI_2_5_PRO = SupportedModel.GEMINI_2_5_PRO;
     AIModel GEMINI_2_5_FLASH = SupportedModel.GEMINI_2_5_FLASH;
-    AIModel GEMINI_2_5_FLASH_LITE = SupportedModel.GEMINI_2_5_FLASH_LITE;
 
     // Open AI
     AIModel GPT_5_4 = SupportedModel.GPT_5_4;
-    AIModel GPT_5_4_PRO = SupportedModel.GPT_5_4_PRO;
-    AIModel GPT_5_2 = SupportedModel.GPT_5_2;
-    AIModel GPT_5_2_PRO = SupportedModel.GPT_5_2_PRO;
-    AIModel GPT_5_2_CODEX = SupportedModel.GPT_5_2_CODEX;
-    AIModel GPT_5_1 = SupportedModel.GPT_5_1;
-    AIModel GPT_5_1_CODEX = SupportedModel.GPT_5_1_CODEX;
-    AIModel GPT_5_1_CODEX_MAX = SupportedModel.GPT_5_1_CODEX_MAX;
-    AIModel GPT_5_MINI = SupportedModel.GPT_5_MINI;
-    AIModel GPT_5_NANO = SupportedModel.GPT_5_NANO;
-    AIModel GPT_4_1 = SupportedModel.GPT_4_1;
+    AIModel GPT_5_4_MINI = SupportedModel.GPT_5_4_MINI;
+    AIModel O3 = SupportedModel.O3;
+    AIModel O4_MINI = SupportedModel.O4_MINI;
 
     // Mistral
     AIModel MISTRAL_LARGE = SupportedModel.MISTRAL_LARGE;
-    AIModel MISTRAL_MEDIUM = SupportedModel.MISTRAL_MEDIUM;
     AIModel MISTRAL_SMALL = SupportedModel.MISTRAL_SMALL;
     AIModel CODESTRAL = SupportedModel.CODESTRAL;
-    AIModel DEVSTRAL = SupportedModel.DEVSTRAL;
-    AIModel MAGISTRAL_MEDIUM = SupportedModel.MAGISTRAL_MEDIUM;
-    AIModel MAGISTRAL_SMALL = SupportedModel.MAGISTRAL_SMALL;
 
     // Groq
     AIModel LLAMA_4_SCOUT = SupportedModel.LLAMA_4_SCOUT;
     AIModel LLAMA_3_3_70B = SupportedModel.LLAMA_3_3_70B;
-    AIModel LLAMA_3_1_8B = SupportedModel.LLAMA_3_1_8B;
-    AIModel GPT_OSS_120B = SupportedModel.GPT_OSS_120B;
-    AIModel QWEN_3_32B_GROQ = SupportedModel.QWEN_3_32B_GROQ;
 
     // DeepSeek
     AIModel DEEPSEEK_CHAT = SupportedModel.DEEPSEEK_CHAT;
@@ -74,65 +58,31 @@ public interface AIModel {
 
     // Together
     AIModel LLAMA_4_MAVERICK_TOGETHER = SupportedModel.LLAMA_4_MAVERICK_TOGETHER;
-    AIModel LLAMA_3_3_70B_TOGETHER = SupportedModel.LLAMA_3_3_70B_TOGETHER;
-    AIModel DEEPSEEK_V3_1_TOGETHER = SupportedModel.DEEPSEEK_V3_1_TOGETHER;
 
     // Fireworks
     AIModel LLAMA_3_3_70B_FIREWORKS = SupportedModel.LLAMA_3_3_70B_FIREWORKS;
-    AIModel DEEPSEEK_V3_FIREWORKS = SupportedModel.DEEPSEEK_V3_FIREWORKS;
-    AIModel QWEN_3_8B_FIREWORKS = SupportedModel.QWEN_3_8B_FIREWORKS;
 
     // xAI
-    AIModel GROK_4_1_FAST = SupportedModel.GROK_4_1_FAST;
-    AIModel GROK_4_1_FAST_NON_REASONING = SupportedModel.GROK_4_1_FAST_NON_REASONING;
+    AIModel GROK_4_20 = SupportedModel.GROK_4_20;
     AIModel GROK_4 = SupportedModel.GROK_4;
-    AIModel GROK_3_MINI = SupportedModel.GROK_3_MINI;
-    AIModel GROK_CODE_FAST = SupportedModel.GROK_CODE_FAST;
-
-    // Azure AI Foundry
-    AIModel CLAUDE_SONNET_4_6_FOUNDRY = SupportedModel.CLAUDE_SONNET_4_6_FOUNDRY;
-    AIModel CLAUDE_HAIKU_4_5_FOUNDRY = SupportedModel.CLAUDE_HAIKU_4_5_FOUNDRY;
-    AIModel GPT_5_2_FOUNDRY = SupportedModel.GPT_5_2_FOUNDRY;
-    AIModel GPT_5_1_FOUNDRY = SupportedModel.GPT_5_1_FOUNDRY;
-    AIModel GPT_5_MINI_FOUNDRY = SupportedModel.GPT_5_MINI_FOUNDRY;
-    AIModel GPT_4O_FOUNDRY = SupportedModel.GPT_4O_FOUNDRY;
-    AIModel GPT_4O_MINI_FOUNDRY = SupportedModel.GPT_4O_MINI_FOUNDRY;
-    AIModel MISTRAL_LARGE_FOUNDRY = SupportedModel.MISTRAL_LARGE_FOUNDRY;
-    AIModel MISTRAL_SMALL_FOUNDRY = SupportedModel.MISTRAL_SMALL_FOUNDRY;
-    AIModel LLAMA_3_3_70B_FOUNDRY = SupportedModel.LLAMA_3_3_70B_FOUNDRY;
-    AIModel LLAMA_4_SCOUT_FOUNDRY = SupportedModel.LLAMA_4_SCOUT_FOUNDRY;
-    AIModel LLAMA_4_MAVERICK_FOUNDRY = SupportedModel.LLAMA_4_MAVERICK_FOUNDRY;
 
     // Azure OpenAI
-    AIModel GPT_5_2_AZURE = SupportedModel.GPT_5_2_AZURE;
-    AIModel GPT_5_1_AZURE = SupportedModel.GPT_5_1_AZURE;
-    AIModel GPT_5_MINI_AZURE = SupportedModel.GPT_5_MINI_AZURE;
-    AIModel GPT_5_NANO_AZURE = SupportedModel.GPT_5_NANO_AZURE;
-    AIModel GPT_4_1_AZURE = SupportedModel.GPT_4_1_AZURE;
-    AIModel GPT_4O_AZURE = SupportedModel.GPT_4O_AZURE;
-    AIModel GPT_4O_MINI_AZURE = SupportedModel.GPT_4O_MINI_AZURE;
-    AIModel O3_AZURE = SupportedModel.O3_AZURE;
-    AIModel O3_MINI_AZURE = SupportedModel.O3_MINI_AZURE;
+    AIModel GPT_5_4_AZURE = SupportedModel.GPT_5_4_AZURE;
     AIModel O4_MINI_AZURE = SupportedModel.O4_MINI_AZURE;
+
+    // Azure AI Foundry
+    AIModel GPT_5_4_FOUNDRY = SupportedModel.GPT_5_4_FOUNDRY;
+    AIModel CLAUDE_SONNET_4_6_FOUNDRY = SupportedModel.CLAUDE_SONNET_4_6_FOUNDRY;
+    AIModel LLAMA_4_SCOUT_FOUNDRY = SupportedModel.LLAMA_4_SCOUT_FOUNDRY;
 
     // Vertex AI
     AIModel GEMINI_2_5_PRO_VERTEX = SupportedModel.GEMINI_2_5_PRO_VERTEX;
     AIModel GEMINI_2_5_FLASH_VERTEX = SupportedModel.GEMINI_2_5_FLASH_VERTEX;
 
     // AWS Bedrock
-    AIModel CLAUDE_OPUS_4_6_BEDROCK = SupportedModel.CLAUDE_OPUS_4_6_BEDROCK;
     AIModel CLAUDE_SONNET_4_6_BEDROCK = SupportedModel.CLAUDE_SONNET_4_6_BEDROCK;
-    AIModel CLAUDE_HAIKU_4_5_BEDROCK = SupportedModel.CLAUDE_HAIKU_4_5_BEDROCK;
+    AIModel AMAZON_NOVA_PREMIER_BEDROCK = SupportedModel.AMAZON_NOVA_PREMIER_BEDROCK;
     AIModel LLAMA_4_MAVERICK_BEDROCK = SupportedModel.LLAMA_4_MAVERICK_BEDROCK;
-    AIModel LLAMA_4_SCOUT_BEDROCK = SupportedModel.LLAMA_4_SCOUT_BEDROCK;
-    AIModel LLAMA_3_3_70B_BEDROCK = SupportedModel.LLAMA_3_3_70B_BEDROCK;
-    AIModel MISTRAL_LARGE_BEDROCK = SupportedModel.MISTRAL_LARGE_BEDROCK;
-    AIModel MISTRAL_SMALL_BEDROCK = SupportedModel.MISTRAL_SMALL_BEDROCK;
-    AIModel AMAZON_NOVA_PRO_BEDROCK = SupportedModel.AMAZON_NOVA_PRO_BEDROCK;
-    AIModel AMAZON_NOVA_LITE_BEDROCK = SupportedModel.AMAZON_NOVA_LITE_BEDROCK;
-    AIModel AMAZON_NOVA_MICRO_BEDROCK = SupportedModel.AMAZON_NOVA_MICRO_BEDROCK;
-    AIModel COHERE_COMMAND_R_PLUS_BEDROCK = SupportedModel.COHERE_COMMAND_R_PLUS_BEDROCK;
-    AIModel COHERE_COMMAND_R_BEDROCK = SupportedModel.COHERE_COMMAND_R_BEDROCK;
 
     static AIModel custom(String modelName, AIProvider provider) {
         Objects.requireNonNull(modelName, "Model name cannot be null");

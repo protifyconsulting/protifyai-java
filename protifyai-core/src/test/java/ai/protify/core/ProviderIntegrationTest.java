@@ -57,37 +57,37 @@ public class ProviderIntegrationTest {
     // One model per provider — cheapest/fastest option chosen
     static Stream<AIModel> allModels() {
         return Stream.of(
-                AIModel.GPT_5_NANO,                    // OpenAI
+                AIModel.GPT_5_4_MINI,                    // OpenAI
                 AIModel.MISTRAL_SMALL,                  // Mistral
                 AIModel.CLAUDE_HAIKU_4_5,               // Anthropic
                 AIModel.GEMINI_2_5_FLASH,             // Gemini
                 AIModel.DEEPSEEK_CHAT,                  // DeepSeek
                 AIModel.LLAMA_4_MAVERICK_TOGETHER,      // Together
-                AIModel.QWEN_3_8B_FIREWORKS,            // Fireworks
-                AIModel.GROK_3_MINI                      // xAI
+                AIModel.LLAMA_3_3_70B_FIREWORKS,            // Fireworks
+                AIModel.GROK_4                      // xAI
         );
     }
 
     // Models that reliably support tool use
     static Stream<AIModel> toolModels() {
         return Stream.of(
-                AIModel.GPT_5_NANO,
+                AIModel.GPT_5_4_MINI,
                 AIModel.MISTRAL_SMALL,
                 AIModel.CLAUDE_HAIKU_4_5,
                 AIModel.GEMINI_2_5_FLASH,
-                AIModel.GROK_3_MINI
+                AIModel.GROK_4
         );
     }
 
     // Models that support streaming
     static Stream<AIModel> streamModels() {
         return Stream.of(
-                AIModel.GPT_5_NANO,
+                AIModel.GPT_5_4_MINI,
                 AIModel.MISTRAL_SMALL,
                 AIModel.CLAUDE_HAIKU_4_5,
                 AIModel.GEMINI_2_5_FLASH,
                 AIModel.DEEPSEEK_CHAT,
-                AIModel.GROK_3_MINI
+                AIModel.GROK_4
         );
     }
 
