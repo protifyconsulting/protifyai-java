@@ -10,25 +10,25 @@ Protify AI is a zero-dependency, provider-agnostic Java SDK for AI. One API work
 ```xml
 <dependency>
     <groupId>ai.protify</groupId>
-    <artifactId>protifyai-core</artifactId>
-    <version>0.1.4</version>
+    <artifactId>protifyai</artifactId>
+    <version>0.1.8</version>
 </dependency>
 ```
 
 **Gradle (core library):**
 ```groovy
-implementation 'ai.protify:protifyai-core:0.1.4'
+implementation 'ai.protify:protifyai:0.1.8'
 ```
 
 **Spring Boot Starter** (includes core automatically):
 ```groovy
-implementation 'ai.protify:protifyai-spring-boot-starter:0.1.4'
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.8'
 ```
 ```xml
 <dependency>
     <groupId>ai.protify</groupId>
     <artifactId>protifyai-spring-boot-starter</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.8</version>
 </dependency>
 ```
 
@@ -90,7 +90,7 @@ String answer = response.text();
 
 ```java
 AIClient client = AIClient.builder()
-        .model(AIModel.GPT_5_1)
+        .model(AIModel.GPT_5_4)
         .instructions("You are a helpful assistant. Be concise.")
         .build();
 ```
@@ -348,7 +348,7 @@ The starter auto-configures `AIClient` beans and `@AIService` proxies. See [`doc
 ### Dependency
 
 ```groovy
-implementation 'ai.protify:protifyai-spring-boot-starter:0.1.4'
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.8'
 ```
 
 ### Minimal application.yml
@@ -435,44 +435,50 @@ public class MyController {
 
 ## Available Models
 
+The SDK includes convenience constants for popular models. For any model not listed, use `explicitModelVersion`:
+
+```java
+AIClient client = AIClient.builder()
+        .provider(ProtifyAIProvider.OPEN_AI)
+        .explicitModelVersion("gpt-5.4-nano")
+        .build();
+```
+
 ### Anthropic
-`AIModel.CLAUDE_OPUS_4_6`, `AIModel.CLAUDE_SONNET_4_6`, `AIModel.CLAUDE_HAIKU_4_5`
+`AIModel.CLAUDE_OPUS_4_6`, `CLAUDE_SONNET_4_6`, `CLAUDE_HAIKU_4_5`
 
 ### OpenAI
-`AIModel.GPT_5_4`, `GPT_5_4_PRO`, `GPT_5_2`, `GPT_5_2_PRO`, `GPT_5_2_CODEX`, `GPT_5_1`, `GPT_5_1_CODEX`, `GPT_5_1_CODEX_MAX`, `GPT_5_MINI`, `GPT_5_NANO`, `GPT_4_1`
+`AIModel.GPT_5_4`, `GPT_5_4_MINI`, `O3`, `O4_MINI`
 
 ### Google Gemini
-`AIModel.GEMINI_3_1_PRO_PREVIEW`, `GEMINI_3_FLASH_PREVIEW`, `GEMINI_2_5_PRO`, `GEMINI_2_5_FLASH`, `GEMINI_2_5_FLASH_LITE`
+`AIModel.GEMINI_3_1_PRO_PREVIEW`, `GEMINI_2_5_PRO`, `GEMINI_2_5_FLASH`
 
 ### Mistral
-`AIModel.MISTRAL_LARGE`, `MISTRAL_MEDIUM`, `MISTRAL_SMALL`, `CODESTRAL`, `DEVSTRAL`, `MAGISTRAL_MEDIUM`, `MAGISTRAL_SMALL`
+`AIModel.MISTRAL_LARGE`, `MISTRAL_SMALL`, `CODESTRAL`
 
 ### Groq
-`AIModel.LLAMA_4_SCOUT`, `LLAMA_3_3_70B`, `LLAMA_3_1_8B`, `GPT_OSS_120B`, `QWEN_3_32B_GROQ`
+`AIModel.LLAMA_4_SCOUT`, `LLAMA_3_3_70B`
 
 ### DeepSeek
 `AIModel.DEEPSEEK_CHAT`, `DEEPSEEK_REASONER`
 
-### Together
-`AIModel.LLAMA_4_MAVERICK_TOGETHER`, `LLAMA_3_3_70B_TOGETHER`, `DEEPSEEK_V3_1_TOGETHER`
-
 ### Fireworks
-`AIModel.LLAMA_3_3_70B_FIREWORKS`, `DEEPSEEK_V3_FIREWORKS`, `QWEN_3_8B_FIREWORKS`
+`AIModel.LLAMA_3_3_70B_FIREWORKS`
 
 ### xAI
-`AIModel.GROK_4_1_FAST`, `GROK_4_1_FAST_NON_REASONING`, `GROK_4`, `GROK_3_MINI`, `GROK_CODE_FAST`
+`AIModel.GROK_4_20`, `GROK_4`
 
 ### Azure OpenAI
-`AIModel.GPT_5_2_AZURE`, `GPT_5_1_AZURE`, `GPT_5_MINI_AZURE`, `GPT_5_NANO_AZURE`, `GPT_4_1_AZURE`, `GPT_4O_AZURE`, `GPT_4O_MINI_AZURE`, `O3_AZURE`, `O3_MINI_AZURE`, `O4_MINI_AZURE`
+`AIModel.GPT_5_4_AZURE`, `O4_MINI_AZURE`
 
 ### Azure AI Foundry
-`AIModel.CLAUDE_SONNET_4_6_FOUNDRY`, `CLAUDE_HAIKU_4_5_FOUNDRY`, `GPT_5_2_FOUNDRY`, `GPT_5_1_FOUNDRY`, `GPT_5_MINI_FOUNDRY`, `GPT_4O_FOUNDRY`, `GPT_4O_MINI_FOUNDRY`, `MISTRAL_LARGE_FOUNDRY`, `MISTRAL_SMALL_FOUNDRY`, `LLAMA_3_3_70B_FOUNDRY`, `LLAMA_4_SCOUT_FOUNDRY`, `LLAMA_4_MAVERICK_FOUNDRY`
+`AIModel.GPT_5_4_FOUNDRY`, `CLAUDE_SONNET_4_6_FOUNDRY`, `LLAMA_4_SCOUT_FOUNDRY`
 
 ### Google Vertex AI
 `AIModel.GEMINI_2_5_PRO_VERTEX`, `GEMINI_2_5_FLASH_VERTEX`
 
 ### AWS Bedrock
-`AIModel.CLAUDE_OPUS_4_6_BEDROCK`, `CLAUDE_SONNET_4_6_BEDROCK`, `CLAUDE_HAIKU_4_5_BEDROCK`, `LLAMA_4_MAVERICK_BEDROCK`, `LLAMA_4_SCOUT_BEDROCK`, `LLAMA_3_3_70B_BEDROCK`, `MISTRAL_LARGE_BEDROCK`, `MISTRAL_SMALL_BEDROCK`, `AMAZON_NOVA_PRO_BEDROCK`, `AMAZON_NOVA_LITE_BEDROCK`, `AMAZON_NOVA_MICRO_BEDROCK`, `COHERE_COMMAND_R_PLUS_BEDROCK`, `COHERE_COMMAND_R_BEDROCK`
+`AIModel.CLAUDE_SONNET_4_6_BEDROCK`, `AMAZON_NOVA_PREMIER_BEDROCK`, `LLAMA_4_MAVERICK_BEDROCK`
 
 ### Custom Model
 ```java
@@ -513,7 +519,7 @@ List<MyPojo> list = response.asList(MyPojo.class);
 
 ```java
 AIClient client = AIClient.builder()
-        .model(AIModel.GPT_5_2_AZURE)
+        .model(AIModel.GPT_5_4_AZURE)
         .apiKey("my-azure-key")           // or AZURE_OPENAI_API_KEY env var
         .resourceName("my-resource")
         .deploymentName("my-deployment")

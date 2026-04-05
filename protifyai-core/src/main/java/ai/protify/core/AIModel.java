@@ -56,9 +56,6 @@ public interface AIModel {
     AIModel DEEPSEEK_CHAT = SupportedModel.DEEPSEEK_CHAT;
     AIModel DEEPSEEK_REASONER = SupportedModel.DEEPSEEK_REASONER;
 
-    // Together
-    AIModel LLAMA_4_MAVERICK_TOGETHER = SupportedModel.LLAMA_4_MAVERICK_TOGETHER;
-
     // Fireworks
     AIModel LLAMA_3_3_70B_FIREWORKS = SupportedModel.LLAMA_3_3_70B_FIREWORKS;
 

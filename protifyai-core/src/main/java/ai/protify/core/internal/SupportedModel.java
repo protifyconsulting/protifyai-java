@@ -52,9 +52,6 @@ public enum SupportedModel implements AIModel {
     DEEPSEEK_CHAT("deepseek-chat", ProtifyAIProvider.DEEP_SEEK),
     DEEPSEEK_REASONER("deepseek-reasoner", ProtifyAIProvider.DEEP_SEEK),
 
-    // Together
-    LLAMA_4_MAVERICK_TOGETHER("meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", ProtifyAIProvider.TOGETHER),
-
     // Fireworks
     LLAMA_3_3_70B_FIREWORKS("accounts/fireworks/models/llama-v3p3-70b-instruct", ProtifyAIProvider.FIREWORKS),
 

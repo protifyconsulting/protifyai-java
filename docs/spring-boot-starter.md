@@ -38,7 +38,7 @@ Add the starter dependency to your project:
 
 **Gradle:**
 ```groovy
-implementation 'ai.protify:protifyai-spring-boot-starter:0.1.4'
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.8'
 ```
 
 **Maven:**
@@ -46,11 +46,11 @@ implementation 'ai.protify:protifyai-spring-boot-starter:0.1.4'
 <dependency>
     <groupId>ai.protify</groupId>
     <artifactId>protifyai-spring-boot-starter</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.8</version>
 </dependency>
 ```
 
-The starter transitively includes the core `protifyai-core` library. You do not need to add both.
+The starter transitively includes the core `protifyai` library. You do not need to add both.
 
 ---
 

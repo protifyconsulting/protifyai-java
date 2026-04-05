@@ -61,6 +61,7 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
   - [Conversations and Pipelines](#mock-conversations-and-pipelines)
   - [Runtime Mutation](#runtime-mutation)
 - [API Key Resolution](#api-key-resolution)
+- [Building and Testing](#building-and-testing)
 - [Built-in Models](#built-in-models)
 - [Cloud Providers](#cloud-providers)
 - [Custom Models and Providers](#custom-models-and-providers)
@@ -76,15 +77,15 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
 ```xml
 <dependency>
     <groupId>ai.protify</groupId>
-    <artifactId>protifyai-core</artifactId>
-    <version>0.1.5</version>
+    <artifactId>protifyai</artifactId>
+    <version>0.1.8</version>
 </dependency>
 ```
 
 **Gradle:**
 
 ```groovy
-implementation 'ai.protify:protifyai-core:0.1.5'
+implementation 'ai.protify:protifyai:0.1.8'
 ```
 
 **Spring Boot:** An experimental [Spring Boot Starter](docs/spring-boot-starter.md) with auto-configuration, `@AIService` bean scanning, and property-based setup is available in the source but not yet published to Maven Central. If there's demand, it will be published as `ai.protify:protifyai-spring-boot-starter`.
@@ -1691,6 +1692,28 @@ try (MCPClient mcp = MCPClient.stdio("npx", "-y", "@modelcontextprotocol/server-
 
 ---
 
+## Building and Testing
+
+```bash
+./gradlew test              # Unit tests only — no credentials required
+./gradlew integrationTest   # Integration tests — requires provider API keys
+./gradlew smokeTest         # Smoke tests — requires provider API keys
+```
+
+The default `test` task runs unit tests that use `MockProvider` and require no API keys.
+
+Integration and smoke tests make real API calls and require provider credentials. Supply them by placing a `.creds` file at `protifyai-core/src/test/resources/.creds`:
+
+```
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=AIza...
+```
+
+Each line is a `KEY=value` pair. Only the providers you want to test need to be populated. The `.creds` file is in `.gitignore` and will not be committed.
+
+---
+
 ## Built-in Models
 
 The SDK includes convenience constants for popular models. For any model not listed here, use `explicitModelVersion` with the appropriate provider — no SDK update required.
@@ -1714,7 +1737,6 @@ The SDK includes convenience constants for popular models. For any model not lis
 | Groq | `AIModel.LLAMA_3_3_70B` | `llama-3.3-70b-versatile` |
 | DeepSeek | `AIModel.DEEPSEEK_CHAT` | `deepseek-chat` |
 | DeepSeek | `AIModel.DEEPSEEK_REASONER` | `deepseek-reasoner` |
-| Together | `AIModel.LLAMA_4_MAVERICK_TOGETHER` | `meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` |
 | Fireworks | `AIModel.LLAMA_3_3_70B_FIREWORKS` | `accounts/fireworks/models/llama-v3p3-70b-instruct` |
 | xAI | `AIModel.GROK_4_20` | `grok-4.20-0309-reasoning` |
 | xAI | `AIModel.GROK_4` | `grok-4` |

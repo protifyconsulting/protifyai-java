@@ -16,16 +16,11 @@
 
 plugins {
     id("java-library")
-    id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.2.4"
+    id("com.vanniktech.maven.publish") version "0.36.0"
 }
 
 group = "ai.protify"
 version = rootProject.version
-
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
 
 java {
     toolchain {
@@ -49,9 +44,11 @@ tasks.test {
     useJUnitPlatform()
 }
 
-centralPortal {
-    username = findProperty("sonatypeUsername") as String? ?: System.getenv("SONATYPE_USERNAME")
-    password = findProperty("sonatypePassword") as String? ?: System.getenv("SONATYPE_PASSWORD")
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    coordinates("ai.protify", "protifyai-spring-boot-starter", version.toString())
 
     pom {
         name = "Protify AI Spring Boot Starter"

@@ -1,5 +1,7 @@
 package ai.protify.core;
 
+import org.junit.jupiter.api.Tag;
+
 import ai.protify.core.conversation.AIConversation;
 import ai.protify.core.conversation.AIConversationState;
 import ai.protify.core.conversation.AIConversationStore;
@@ -35,6 +37,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("integration")
 public class ProviderIntegrationTest {
 
     // Delay in milliseconds between API calls to avoid provider rate limits.
@@ -62,7 +65,6 @@ public class ProviderIntegrationTest {
                 AIModel.CLAUDE_HAIKU_4_5,               // Anthropic
                 AIModel.GEMINI_2_5_FLASH,             // Gemini
                 AIModel.DEEPSEEK_CHAT,                  // DeepSeek
-                AIModel.LLAMA_4_MAVERICK_TOGETHER,      // Together
                 AIModel.LLAMA_3_3_70B_FIREWORKS,            // Fireworks
                 AIModel.GROK_4                      // xAI
         );
