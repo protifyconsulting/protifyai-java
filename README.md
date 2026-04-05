@@ -77,14 +77,14 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
 <dependency>
     <groupId>ai.protify</groupId>
     <artifactId>protifyai-core</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
 </dependency>
 ```
 
 **Gradle:**
 
 ```groovy
-implementation 'ai.protify:protifyai-core:0.1.4'
+implementation 'ai.protify:protifyai-core:0.1.5'
 ```
 
 ```java
