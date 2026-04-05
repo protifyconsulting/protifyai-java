@@ -87,6 +87,16 @@ Without the reference doc, an AI agent has to explore the codebase to figure out
   - [Reasoning Content in Responses](#reasoning-content-in-responses)
   - [Parameter Validation](#parameter-validation)
   - [Reasoning in Declarative AI Services](#reasoning-in-declarative-ai-services)
+- [Testing with MockProvider](#testing-with-mockprovider)
+  - [Quick Setup](#quick-setup)
+  - [Response Queue](#response-queue)
+  - [Dynamic Responses](#dynamic-responses)
+  - [Rich Responses](#rich-responses)
+  - [Mock Tool Calls](#mock-tool-calls)
+  - [Request Verification](#request-verification)
+  - [Streaming](#mock-streaming)
+  - [Conversations and Pipelines](#mock-conversations-and-pipelines)
+  - [Runtime Mutation](#runtime-mutation)
 - [API Key Resolution](#api-key-resolution)
 - [Documentation](#documentation)
 
@@ -1241,6 +1251,262 @@ AIClient client = AIClient.builder()
 ```
 
 The default retry policy has `maxRetries(0)` (no retries). Retry policies can be set at the client, request, or pipeline level.
+
+---
+
+## Testing with MockProvider
+
+`MockProvider` is a built-in `AIProvider` implementation that returns canned responses without making HTTP calls. Use it in unit tests to verify your AI-powered code without needing API keys or network access.
+
+**Import:**
+
+```java
+import ai.protify.core.provider.mock.MockProvider;
+import ai.protify.core.provider.mock.MockResponse;
+import ai.protify.core.provider.mock.MockToolCall;
+```
+
+### Quick Setup
+
+The simplest way to create a mock-backed `AIClient`:
+
+```java
+MockProvider mock = MockProvider.withResponse("Hello, world!");
+
+AIClient client = AIClient.builder()
+        .model(AIModel.custom("mock-model", mock))
+        .apiKey("mock-key")
+        .build();
+
+AIResponse response = client.newRequest()
+        .addInput("Say hello")
+        .maxOutputTokens(100)
+        .build()
+        .execute();
+
+assertEquals("Hello, world!", response.text());
+```
+
+### Response Queue
+
+Queue multiple responses that are returned in order. Once the queue is exhausted, the default response is used:
+
+```java
+MockProvider mock = MockProvider.builder()
+        .response("First response")
+        .response("Second response")
+        .response("Third response")
+        .defaultResponse("Fallback for all subsequent requests")
+        .build();
+
+AIClient client = AIClient.builder()
+        .model(AIModel.custom("mock-model", mock))
+        .apiKey("mock-key")
+        .build();
+
+// Returns "First response", "Second response", "Third response", then "Fallback..." thereafter
+```
+
+### Dynamic Responses
+
+Use a response function to generate responses based on the request:
+
+```java
+MockProvider mock = MockProvider.withResponseFunction(request -> {
+    String input = ((AITextInput) request.getInputs().get(0)).getText();
+    return MockResponse.of("Echo: " + input);
+});
+```
+
+Response resolution order: **queued responses** > **response function** > **default response** > empty string.
+
+### Rich Responses
+
+Use `MockResponse.builder()` to control token counts, model name, reasoning content, and more:
+
+```java
+MockProvider mock = MockProvider.withResponse(
+        MockResponse.builder()
+                .text("The answer is 42")
+                .modelName("custom-model")
+                .inputTokens(15)
+                .outputTokens(5)
+                .processingTimeMillis(100)
+                .stopReason("end_turn")
+                .reasoningContent("Let me think about this...")
+                .build()
+);
+```
+
+Responses support structured output — return JSON text and use `response.as(MyClass.class)` or `response.asList(MyClass.class)`:
+
+```java
+MockProvider mock = MockProvider.withResponse("{\"name\":\"Paris\",\"country\":\"France\"}");
+
+CityInfo city = client.newRequest()
+        .addInput("Tell me about Paris")
+        .maxOutputTokens(100)
+        .build()
+        .execute()
+        .as(CityInfo.class);
+```
+
+### Mock Tool Calls
+
+Return mock tool calls in responses to test tool-use flows:
+
+```java
+MockProvider mock = MockProvider.withResponse(
+        MockResponse.builder()
+                .toolCalls(List.of(
+                        new MockToolCall("get_weather", Map.of("city", "London")),
+                        new MockToolCall("get_time", Map.of("timezone", "UTC"))
+                ))
+                .build()
+);
+
+AIResponse response = client.newRequest()
+        .addInput("What's the weather?")
+        .maxOutputTokens(100)
+        .build()
+        .execute();
+
+assertTrue(response.hasToolCalls());
+assertEquals("get_weather", response.getToolCalls().get(0).getName());
+assertEquals("London", response.getToolCalls().get(0).getArguments().get("city"));
+```
+
+### Request Verification
+
+`MockProvider` records every request it receives, so you can verify what your code sent:
+
+```java
+MockProvider mock = MockProvider.withResponse("ok");
+AIClient client = AIClient.builder()
+        .model(AIModel.custom("mock-model", mock))
+        .apiKey("mock-key")
+        .build();
+
+client.newRequest().addInput("hello").maxOutputTokens(100).build().execute();
+client.newRequest().addInput("world").maxOutputTokens(100).build().execute();
+
+assertEquals(2, mock.getRequestCount());
+assertNotNull(mock.getLastRequest());
+
+// Inspect recorded request inputs
+MockProviderRequest lastReq = mock.getLastRequest();
+String text = ((AITextInput) lastReq.getInputs().get(0)).getText();
+assertEquals("world", text);
+
+// Access full history
+List<MockProviderRequest> allRequests = mock.getRecordedRequests();
+```
+
+### Mock Streaming
+
+Streaming works automatically — text is delivered character by character on a background thread:
+
+```java
+MockProvider mock = MockProvider.withResponse("Hello");
+
+AIStreamResponse stream = client.newRequest()
+        .addInput("Say hello")
+        .maxOutputTokens(100)
+        .build()
+        .executeStream();
+
+List<String> tokens = new ArrayList<>();
+stream.onToken(tokens::add);
+
+AIResponse response = stream.toResponse();
+assertEquals("Hello", response.text());
+assertEquals(5, tokens.size()); // H, e, l, l, o
+```
+
+To simulate network latency between tokens, set a delay:
+
+```java
+MockProvider mock = MockProvider.builder()
+        .defaultResponse("Slow response")
+        .streamTokenDelayMillis(50) // 50ms between each character
+        .build();
+```
+
+### Mock Conversations and Pipelines
+
+`MockProvider` works seamlessly with conversations and pipelines:
+
+```java
+// Conversations
+MockProvider mock = MockProvider.builder()
+        .response("Nice to meet you!")
+        .response("Your name is Alice.")
+        .build();
+AIClient client = AIClient.builder()
+        .model(AIModel.custom("mock-model", mock))
+        .apiKey("mock-key")
+        .build();
+
+AIConversation conversation = client.newConversation()
+        .instructions("You are helpful.")
+        .maxOutputTokens(100)
+        .build();
+
+conversation.send("Hi, I'm Alice.");
+AIResponse response = conversation.send("What's my name?");
+assertEquals("Your name is Alice.", response.text());
+
+// Pipelines
+MockProvider pipelineMock = MockProvider.builder()
+        .response("France")
+        .response("Paris")
+        .build();
+AIClient pipelineClient = AIClient.builder()
+        .model(AIModel.custom("mock-model", pipelineMock))
+        .apiKey("mock-key")
+        .build();
+
+AIPipeline pipeline = AIPipeline.builder()
+        .withInitialStep(() -> pipelineClient.newRequest()
+                .addInput("Name a European country.")
+                .maxOutputTokens(100)
+                .build())
+        .addRequestStep(ctx -> pipelineClient.newRequest()
+                .addInput("Capital of " + ctx.text() + "?")
+                .maxOutputTokens(100)
+                .build())
+        .build();
+
+assertEquals("Paris", pipeline.execute().text());
+```
+
+### Runtime Mutation
+
+You can modify `MockProvider` state between test steps:
+
+```java
+MockProvider mock = MockProvider.withResponse("initial");
+AIClient client = AIClient.builder()
+        .model(AIModel.custom("mock-model", mock))
+        .apiKey("mock-key")
+        .build();
+
+// Enqueue additional responses
+mock.enqueueResponse("next response");
+mock.enqueueResponse(MockResponse.builder().text("rich").inputTokens(10).build());
+
+// Change default
+mock.setDefaultResponse("new default");
+
+// Set dynamic response function
+mock.setResponseFunction(req -> MockResponse.of("dynamic"));
+
+// Reset everything (queue, default, function, recorded requests)
+mock.reset();
+
+// Clear only recorded requests
+mock.clearRecordedRequests();
+```
 
 ---
 
