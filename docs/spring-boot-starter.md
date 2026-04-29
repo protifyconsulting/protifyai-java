@@ -38,7 +38,7 @@ Add the starter dependency to your project:
 
 **Gradle:**
 ```groovy
-implementation 'ai.protify:protifyai-spring-boot-starter:0.1.8'
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.9'
 ```
 
 **Maven:**
@@ -46,7 +46,7 @@ implementation 'ai.protify:protifyai-spring-boot-starter:0.1.8'
 <dependency>
     <groupId>ai.protify</groupId>
     <artifactId>protifyai-spring-boot-starter</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
 </dependency>
 ```
 

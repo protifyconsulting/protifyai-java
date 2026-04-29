@@ -11,24 +11,24 @@ Protify AI is a zero-dependency, provider-agnostic Java SDK for AI. One API work
 <dependency>
     <groupId>ai.protify</groupId>
     <artifactId>protifyai</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
 </dependency>
 ```
 
 **Gradle (core library):**
 ```groovy
-implementation 'ai.protify:protifyai:0.1.8'
+implementation 'ai.protify:protifyai:0.1.9'
 ```
 
 **Spring Boot Starter** (includes core automatically):
 ```groovy
-implementation 'ai.protify:protifyai-spring-boot-starter:0.1.8'
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.9'
 ```
 ```xml
 <dependency>
     <groupId>ai.protify</groupId>
     <artifactId>protifyai-spring-boot-starter</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
 </dependency>
 ```
 
@@ -122,6 +122,8 @@ AIStreamResponse stream = client.newRequest()
 stream.onToken(token -> System.out.print(token));
 AIResponse fullResponse = stream.toResponse(); // blocks until complete
 ```
+
+The configured `RetryPolicy` also applies to streaming, but only for failures that occur *before* the first token is emitted (e.g., the provider rejects the request with 429/503). Once tokens start flowing, the stream is committed and errors are surfaced without retry.
 
 ### Async
 
@@ -348,7 +350,7 @@ The starter auto-configures `AIClient` beans and `@AIService` proxies. See [`doc
 ### Dependency
 
 ```groovy
-implementation 'ai.protify:protifyai-spring-boot-starter:0.1.8'
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.9'
 ```
 
 ### Minimal application.yml

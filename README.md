@@ -78,17 +78,31 @@ A lightweight, provider-agnostic Java SDK for building AI-powered applications. 
 <dependency>
     <groupId>ai.protify</groupId>
     <artifactId>protifyai</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
 </dependency>
 ```
 
 **Gradle:**
 
 ```groovy
-implementation 'ai.protify:protifyai:0.1.8'
+implementation 'ai.protify:protifyai:0.1.9'
 ```
 
-**Spring Boot:** An experimental [Spring Boot Starter](docs/spring-boot-starter.md) with auto-configuration, `@AIService` bean scanning, and property-based setup is available in the source but not yet published to Maven Central. If there's demand, it will be published as `ai.protify:protifyai-spring-boot-starter`.
+**Spring Boot:** A [Spring Boot Starter](docs/spring-boot-starter.md) is also published, with auto-configuration, `@AIService` bean scanning, and property-based setup for Spring Boot 2.x/3.x/4.x:
+
+```xml
+<dependency>
+    <groupId>ai.protify</groupId>
+    <artifactId>protifyai-spring-boot-starter</artifactId>
+    <version>0.1.9</version>
+</dependency>
+```
+
+```groovy
+implementation 'ai.protify:protifyai-spring-boot-starter:0.1.9'
+```
+
+The starter transitively includes the core `protifyai` library — add one or the other, not both.
 
 ```java
 import ai.protify.core.AIClient;
@@ -989,6 +1003,8 @@ AIClient client = AIClient.builder()
 ```
 
 The default retry policy has `maxRetries(0)` (no retries). Retry policies can be set at the client, request, or pipeline level.
+
+The same policy applies to streaming requests (`executeStream()`), with one constraint: a streaming call is only retried if it fails *before* any tokens have been emitted — for example, when a provider rejects the request with 429/503 because it is busy. Once tokens start flowing, the stream is treated as committed and any subsequent error is surfaced to the caller without retry.
 
 ---
 

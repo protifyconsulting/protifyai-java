@@ -236,6 +236,18 @@ public class ProtifyHttpClient {
         String jsonBody = request.toJson();
 
         int timeoutMillis = configuration.getProperty(AIConfigProperty.REQUEST_TIMEOUT_MS);
+        RetryPolicy retryPolicy = configuration.getProperty(AIConfigProperty.RETRY_POLICY);
+
+        SSELineParser parser = new SSELineParser((event, data) -> onEvent.accept(data));
+
+        return internalPostStreamWithRetryAsync(
+                provider, credential, uri, jsonBody, timeoutMillis, retryPolicy, parser, onComplete, 0);
+    }
+
+    @SuppressWarnings({"java:S107"})
+    private CompletableFuture<Void> internalPostStreamWithRetryAsync(
+            AIProvider provider, String credential, String uri, String jsonBody, long timeoutMillis,
+            RetryPolicy retryPolicy, SSELineParser parser, Runnable onComplete, int attempt) {
 
         HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -244,19 +256,38 @@ public class ProtifyHttpClient {
         provider.getHeaders(credential).forEach(reqBuilder::header);
         HttpRequest httpRequest = reqBuilder.build();
 
-        SSELineParser parser = new SSELineParser((event, data) -> onEvent.accept(data));
-
         return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofLines())
-                .thenAccept(response -> {
-                    if (response.statusCode() != 200) {
-                        StringBuilder errorBody = new StringBuilder();
-                        response.body().forEach(line -> errorBody.append(line).append("\n"));
-                        throw translateStatusToException(response.statusCode(), errorBody.toString().trim());
+                .handle((response, ex) -> {
+                    // Pre-stream failure: connection error, or non-200 status. No tokens emitted yet — safe to retry.
+                    if (ex != null || response.statusCode() != 200) {
+                        Exception error;
+                        if (ex != null) {
+                            error = (ex instanceof Exception) ? (Exception) ex : new ProtifyApiException(ex.getMessage(), ex);
+                        } else {
+                            StringBuilder errorBody = new StringBuilder();
+                            response.body().forEach(line -> errorBody.append(line).append("\n"));
+                            error = translateStatusToException(response.statusCode(), errorBody.toString().trim());
+                        }
+
+                        if (attempt < retryPolicy.getMaxRetries() && shouldRetry(error, retryPolicy)) {
+                            LOGGER.info("Streaming attempt {} failed, retrying in {}ms: {}",
+                                    attempt + 1, retryPolicy.getDelayMillis(), error.getMessage());
+                            return delay(retryPolicy.getDelayMillis())
+                                    .thenCompose(v -> internalPostStreamWithRetryAsync(
+                                            provider, credential, uri, jsonBody, timeoutMillis,
+                                            retryPolicy, parser, onComplete, attempt + 1));
+                        }
+
+                        return CompletableFuture.<Void>failedFuture(
+                                error instanceof RuntimeException ? (RuntimeException) error : new ProtifyApiException(error.getMessage(), error));
                     }
+
+                    // 200 OK — stream is committed. From here on, errors are not retried.
                     response.body().forEach(parser::feedLine);
                     parser.finish();
                     onComplete.run();
-                });
+                    return CompletableFuture.<Void>completedFuture(null);
+                }).thenCompose(f -> f);
     }
 
     public static RuntimeException createApiException(int statusCode, String responseBody) {

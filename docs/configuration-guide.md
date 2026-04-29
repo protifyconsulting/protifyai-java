@@ -214,6 +214,8 @@ RetryPolicy policy = RetryPolicy.builder()
 
 Retry policies can be set at the client, request, or pipeline level. They can also be configured in the base properties file.
 
+The same policy applies to streaming requests (`executeStream()`). A streaming call is only retried if the provider rejects the request *before* any tokens are emitted (for example, a 429 or 503 because the provider is busy). Once tokens start flowing, the stream is treated as committed and subsequent errors are surfaced without retry — there is no mid-stream resumption.
+
 ---
 
 ## Cloud Provider Configuration
