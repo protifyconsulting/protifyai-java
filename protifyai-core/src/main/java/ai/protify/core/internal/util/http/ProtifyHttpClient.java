@@ -27,16 +27,23 @@ import ai.protify.core.internal.util.Logger;
 import ai.protify.core.internal.util.LoggerFactory;
 import ai.protify.core.provider.AIProvider;
 import ai.protify.core.provider.AIProviderRequest;
+import ai.protify.core.resiliency.RetryBackoffStrategy;
 import ai.protify.core.resiliency.RetryPolicy;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
@@ -158,7 +165,7 @@ public class ProtifyHttpClient {
 
             int timeoutMillis = configuration.getProperty(AIConfigProperty.REQUEST_TIMEOUT_MS);
             RetryPolicy retryPolicy = configuration.getProperty(AIConfigProperty.RETRY_POLICY);
-            return internalPostWithRetryAsync(provider, credential, uri, jsonBody, timeoutMillis, retryPolicy, 0)
+            return internalPostWithRetryAsync(provider, credential, uri, jsonBody, timeoutMillis, retryPolicy, 0, startTime)
                     .thenApply(response -> {
                         long elapsedTime = System.currentTimeMillis() - startTime;
                         ProtifyHttpResponse res = new ProtifyHttpResponse(false, response.body(), response.statusCode(), elapsedTime);
@@ -178,21 +185,27 @@ public class ProtifyHttpClient {
         }
     }
 
+    @SuppressWarnings({"java:S107"})
     private CompletableFuture<HttpResponse<String>> internalPostWithRetryAsync(
-            AIProvider provider, String credential, String uri, String jsonBody, long timeoutMillis, RetryPolicy retryPolicy, int attempt) {
+            AIProvider provider, String credential, String uri, String jsonBody, long timeoutMillis,
+            RetryPolicy retryPolicy, int attempt, long startTime) {
 
         return internalPostAsync(provider, credential, uri, jsonBody, timeoutMillis)
                 .handle((response, ex) -> {
                     if (ex == null && response.statusCode() == 200) return CompletableFuture.completedFuture(response);
 
                     Exception error = (ex != null) ? (Exception) ex : translateStatusToException(response.statusCode(), response.body());
+                    HttpHeaders headers = (response != null) ? response.headers() : null;
 
-                    if (attempt < retryPolicy.getMaxRetries() && shouldRetry(error, retryPolicy)) {
-                        LOGGER.info( "Attempt {} failed, retrying in {}ms: {}",
-                                attempt + 1, retryPolicy.getDelayMillis(), error.getMessage());
+                    if (attempt < retryPolicy.getMaxRetries() && shouldRetry(error, retryPolicy)
+                            && !exceededMaxElapsed(retryPolicy, startTime)) {
+                        long delayMillis = computeDelayMillis(retryPolicy, attempt, headers);
+                        LOGGER.info("Attempt {} failed, retrying in {}ms: {}",
+                                attempt + 1, delayMillis, error.getMessage());
 
-                        return delay(retryPolicy.getDelayMillis())
-                                .thenCompose(v -> internalPostWithRetryAsync(provider, credential, uri, jsonBody, timeoutMillis, retryPolicy, attempt + 1));
+                        return delay(delayMillis)
+                                .thenCompose(v -> internalPostWithRetryAsync(
+                                        provider, credential, uri, jsonBody, timeoutMillis, retryPolicy, attempt + 1, startTime));
                     }
 
                     return CompletableFuture.<HttpResponse<String>>failedFuture(
@@ -218,13 +231,72 @@ public class ProtifyHttpClient {
     }
 
     private boolean shouldRetry(Exception e, RetryPolicy policy) {
-        /*
-        if (policy.getIgnoreExceptions() != null && policy.getIgnoreExceptions().stream().anyMatch(clz -> clz.isInstance(e))) return false;
-        if (policy.getRetryOnExceptions() == null || policy.getRetryOnExceptions().isEmpty()) return true;
-        return policy.getRetryOnExceptions().stream().anyMatch(clz -> clz.isInstance(e));
+        // HTTP errors carry a status code on ProtifyApiException; gate them on retryOnHttpStatusCodes.
+        if (e instanceof ProtifyApiException) {
+            int statusCode = ((ProtifyApiException) e).getStatusCode();
+            if (statusCode > 0) {
+                Set<Integer> codes = policy.getRetryOnHttpStatusCodes();
+                return codes != null && codes.contains(statusCode);
+            }
+        }
+        // Non-HTTP errors (network failures, timeouts before headers, etc.) gate on retryOnExceptions.
+        Set<Class<? extends Exception>> retryOn = policy.getRetryOnExceptions();
+        if (retryOn == null || retryOn.isEmpty()) return false;
+        return retryOn.stream().anyMatch(clz -> clz.isInstance(e));
+    }
 
-         */
-        return true;
+    private boolean exceededMaxElapsed(RetryPolicy policy, long startTime) {
+        long max = policy.getMaxElapsedTimeMillis();
+        if (max <= 0) return false;
+        return (System.currentTimeMillis() - startTime) >= max;
+    }
+
+    private long computeDelayMillis(RetryPolicy policy, int attempt, HttpHeaders headers) {
+        if (policy.isRespectRetryAfter() && headers != null) {
+            Long retryAfter = parseRetryAfter(headers);
+            if (retryAfter != null) {
+                return clampDelay(retryAfter, policy);
+            }
+        }
+
+        long base = policy.getDelayMillis();
+        long delay = (policy.getBackoffStrategy() == RetryBackoffStrategy.EXPONENTIAL)
+                ? base * (1L << Math.min(attempt, 30))   // cap shift to avoid overflow
+                : base;
+
+        long jitter = policy.getJitterMillis();
+        if (jitter > 0) {
+            delay += ThreadLocalRandom.current().nextLong(jitter + 1);
+        }
+        return clampDelay(delay, policy);
+    }
+
+    private long clampDelay(long delay, RetryPolicy policy) {
+        long max = policy.getMaxDelayMillis();
+        if (max > 0 && delay > max) return max;
+        return Math.max(delay, 0L);
+    }
+
+    private Long parseRetryAfter(HttpHeaders headers) {
+        Optional<String> value = headers.firstValue("Retry-After");
+        if (!value.isPresent()) return null;
+        String raw = value.get().trim();
+        if (raw.isEmpty()) return null;
+
+        // Form 1: delay-seconds (integer)
+        try {
+            long seconds = Long.parseLong(raw);
+            return Math.max(0L, seconds * 1000L);
+        } catch (NumberFormatException ignored) { /* fall through to HTTP-date */ }
+
+        // Form 2: HTTP-date (RFC 1123)
+        try {
+            ZonedDateTime when = ZonedDateTime.parse(raw, DateTimeFormatter.RFC_1123_DATE_TIME);
+            long deltaMs = when.toInstant().toEpochMilli() - System.currentTimeMillis();
+            return Math.max(0L, deltaMs);
+        } catch (DateTimeParseException ignored) {
+            return null;
+        }
     }
 
     public CompletableFuture<Void> postStream(AIProviderRequest request, String uri,
@@ -235,24 +307,31 @@ public class ProtifyHttpClient {
         String credential = CredentialHelperFactory.getInstance().getCredential(provider, configuration);
         String jsonBody = request.toJson();
 
-        int timeoutMillis = configuration.getProperty(AIConfigProperty.REQUEST_TIMEOUT_MS);
+        // Streaming responses can run far longer than a single non-streaming call. If the caller
+        // sets STREAM_TIMEOUT_MS, use it. Otherwise leave HttpRequest.timeout() unset so the body
+        // is bounded only by the connection's idle behavior (and the server) — REQUEST_TIMEOUT_MS
+        // is for whole-response calls and would cut long completions off mid-stream.
+        Integer streamTimeout = configuration.getProperty(AIConfigProperty.STREAM_TIMEOUT_MS);
         RetryPolicy retryPolicy = configuration.getProperty(AIConfigProperty.RETRY_POLICY);
 
         SSELineParser parser = new SSELineParser((event, data) -> onEvent.accept(data));
 
         return internalPostStreamWithRetryAsync(
-                provider, credential, uri, jsonBody, timeoutMillis, retryPolicy, parser, onComplete, 0);
+                provider, credential, uri, jsonBody, streamTimeout, retryPolicy, parser, onComplete,
+                0, System.currentTimeMillis());
     }
 
     @SuppressWarnings({"java:S107"})
     private CompletableFuture<Void> internalPostStreamWithRetryAsync(
-            AIProvider provider, String credential, String uri, String jsonBody, long timeoutMillis,
-            RetryPolicy retryPolicy, SSELineParser parser, Runnable onComplete, int attempt) {
+            AIProvider provider, String credential, String uri, String jsonBody, Integer streamTimeoutMillis,
+            RetryPolicy retryPolicy, SSELineParser parser, Runnable onComplete, int attempt, long startTime) {
 
         HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
-                .timeout(Duration.ofMillis(timeoutMillis))
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody));
+        if (streamTimeoutMillis != null && streamTimeoutMillis > 0) {
+            reqBuilder.timeout(Duration.ofMillis(streamTimeoutMillis));
+        }
         provider.getHeaders(credential).forEach(reqBuilder::header);
         HttpRequest httpRequest = reqBuilder.build();
 
@@ -261,21 +340,25 @@ public class ProtifyHttpClient {
                     // Pre-stream failure: connection error, or non-200 status. No tokens emitted yet — safe to retry.
                     if (ex != null || response.statusCode() != 200) {
                         Exception error;
+                        HttpHeaders headers = null;
                         if (ex != null) {
                             error = (ex instanceof Exception) ? (Exception) ex : new ProtifyApiException(ex.getMessage(), ex);
                         } else {
+                            headers = response.headers();
                             StringBuilder errorBody = new StringBuilder();
                             response.body().forEach(line -> errorBody.append(line).append("\n"));
                             error = translateStatusToException(response.statusCode(), errorBody.toString().trim());
                         }
 
-                        if (attempt < retryPolicy.getMaxRetries() && shouldRetry(error, retryPolicy)) {
+                        if (attempt < retryPolicy.getMaxRetries() && shouldRetry(error, retryPolicy)
+                                && !exceededMaxElapsed(retryPolicy, startTime)) {
+                            long delayMillis = computeDelayMillis(retryPolicy, attempt, headers);
                             LOGGER.info("Streaming attempt {} failed, retrying in {}ms: {}",
-                                    attempt + 1, retryPolicy.getDelayMillis(), error.getMessage());
-                            return delay(retryPolicy.getDelayMillis())
+                                    attempt + 1, delayMillis, error.getMessage());
+                            return delay(delayMillis)
                                     .thenCompose(v -> internalPostStreamWithRetryAsync(
-                                            provider, credential, uri, jsonBody, timeoutMillis,
-                                            retryPolicy, parser, onComplete, attempt + 1));
+                                            provider, credential, uri, jsonBody, streamTimeoutMillis,
+                                            retryPolicy, parser, onComplete, attempt + 1, startTime));
                         }
 
                         return CompletableFuture.<Void>failedFuture(

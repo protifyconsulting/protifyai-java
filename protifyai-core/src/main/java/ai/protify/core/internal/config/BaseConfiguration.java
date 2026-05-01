@@ -62,7 +62,8 @@ public final class BaseConfiguration {
 
             AIConfigProperty.RESPONSE_CACHE_MAX_ENTRIES,
             AIConfigProperty.RESPONSE_CACHE_TTL_SECS,
-            AIConfigProperty.REQUEST_TIMEOUT_MS
+            AIConfigProperty.REQUEST_TIMEOUT_MS,
+            AIConfigProperty.STREAM_TIMEOUT_MS
     );
 
     private static final BaseConfiguration INSTANCE = new BaseConfiguration();

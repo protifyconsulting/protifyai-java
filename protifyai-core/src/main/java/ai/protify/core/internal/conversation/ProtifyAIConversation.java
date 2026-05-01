@@ -148,13 +148,20 @@ public class ProtifyAIConversation implements AIConversation {
         streamResponse.onToken(wrapper::pushToken);
 
         CompletableFuture.runAsync(() -> {
-            AIResponse completed = streamResponse.toResponse();
-            AIMessage assistantMessage = ProtifyAIMessage.fromResponse(completed);
-            messages.add(assistantMessage);
-            if (store != null) {
-                store.save(getState());
+            try {
+                AIResponse completed = streamResponse.toResponse();
+                AIMessage assistantMessage = ProtifyAIMessage.fromResponse(completed);
+                messages.add(assistantMessage);
+                if (store != null) {
+                    store.save(getState());
+                }
+                wrapper.complete(completed);
+            } catch (Throwable t) {
+                // Without this, a mid-stream failure would leave the wrapper future
+                // unresolved and any caller blocked on toResponse() would hang forever.
+                wrapper.completeExceptionally(t);
+                if (t instanceof Error) throw t;
             }
-            wrapper.complete(completed);
         });
 
         return wrapper;

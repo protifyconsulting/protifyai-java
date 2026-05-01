@@ -38,6 +38,7 @@ public enum AIConfigProperty {
     MODEL_EXPLICIT_VERSION("clients.modelExplicitVersion", false, null, String.class),
 
     REQUEST_TIMEOUT_MS("request.timeoutMillis", false, 60000, Integer.class),
+    STREAM_TIMEOUT_MS("request.streamTimeoutMillis", false, null, Integer.class),
 
     RETRY_POLICY( "retryPolicy", false, null, RetryPolicy.class),
 

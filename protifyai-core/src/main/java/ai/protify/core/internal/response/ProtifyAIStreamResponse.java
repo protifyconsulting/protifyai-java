@@ -20,20 +20,32 @@ import ai.protify.core.internal.pipeline.PipelineAIResponse;
 import ai.protify.core.response.AIResponse;
 import ai.protify.core.response.AIStreamResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class ProtifyAIStreamResponse implements AIStreamResponse {
 
-    private final List<Consumer<String>> listeners = new CopyOnWriteArrayList<>();
+    // Single lock guards both `listeners` and `accumulated` so a listener registered
+    // mid-stream atomically observes the accumulated buffer at registration time
+    // and never misses or duplicates a subsequent token.
+    private final Object lock = new Object();
+    private final List<Consumer<String>> listeners = new ArrayList<>();
     private final StringBuilder accumulated = new StringBuilder();
     private final CompletableFuture<AIResponse> completion = new CompletableFuture<>();
 
     @Override
     public void onToken(Consumer<String> listener) {
-        listeners.add(listener);
+        String replay;
+        synchronized (lock) {
+            replay = accumulated.toString();
+            listeners.add(listener);
+        }
+        // Replay outside the lock to avoid blocking pushToken on slow listeners.
+        if (!replay.isEmpty()) {
+            listener.accept(replay);
+        }
     }
 
     @Override
@@ -42,8 +54,12 @@ public class ProtifyAIStreamResponse implements AIStreamResponse {
     }
 
     public void pushToken(String token) {
-        accumulated.append(token);
-        for (Consumer<String> listener : listeners) {
+        List<Consumer<String>> snapshot;
+        synchronized (lock) {
+            accumulated.append(token);
+            snapshot = new ArrayList<>(listeners);
+        }
+        for (Consumer<String> listener : snapshot) {
             listener.accept(token);
         }
     }
@@ -53,7 +69,11 @@ public class ProtifyAIStreamResponse implements AIStreamResponse {
     }
 
     public void completeWithAccumulatedText() {
-        completion.complete(PipelineAIResponse.of(accumulated.toString()));
+        String text;
+        synchronized (lock) {
+            text = accumulated.toString();
+        }
+        completion.complete(PipelineAIResponse.of(text));
     }
 
     public void completeExceptionally(Throwable ex) {
